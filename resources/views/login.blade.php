@@ -33,7 +33,7 @@
                 {{-- <div class="mb-3">
                     <a>Lupa Password?</a>
                 </div> --}}
-                <button type="submit" class="btn btn-primary w-100">Login</button>
+                <button type="submit" class="btn btn-primary w-100">Logina</button>
             </form>
         </div>
     </div>
