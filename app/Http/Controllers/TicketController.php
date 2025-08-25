@@ -402,6 +402,8 @@ class TicketController extends Controller
     {
         $sessionToken = Session::get('glpi_session_token');
         $userId = Session::get('glpi_user_id');
+        $userProfile = Session::get('glpi_user_profile');
+        $userName = Session::get('glpi_user_name');
 
         // Ambil data tiket
         $response = Http::withHeaders([
@@ -413,12 +415,14 @@ class TicketController extends Controller
         }
         $ticket = $response->json();
 
+        // Ambil Kategori Tiket
         $ticket['categoryName'] = $this->apiHelper->getResource('ITILCategory', $ticket['itilcategories_id'] ?? null, $sessionToken)['name'] ?? '-';
+        // Ambil Lokasi Tiket
         $ticket['locationName'] = $this->apiHelper->getResource('Location', $ticket['locations_id'] ?? null, $sessionToken)['name'] ?? '-';
-        $ticket['requesterName'] = $this->apiHelper->getResource('User', $ticket['users_id_recipient'] ?? null, $sessionToken)['name'] ?? '-';
+        // Ambil Pembuat Tiket
+        $ticket['requesterName'] = $this->apiHelper->getUserName($ticket['users_id_recipient'] ?? null, $sessionToken);
+        // Ambil Status Tiket
         $ticket['statusName']    = $this->apiHelper->getStatusName($ticket['status'] ?? 0);
-        $userProfile = Session::get('glpi_user_profile');
-        $userName = Session::get('glpi_user_name');
 
         if ($ticket['users_id_recipient'] == $userId) {
             $ticket['is_requester'] = true;
@@ -437,7 +441,7 @@ class TicketController extends Controller
         // Ambil hanya Teknisi
         foreach ($ticketUsers as $tu) {
             if (($tu['type'] ?? '') == 2) { // type=2 = assigned tech
-                $assignedTechs[] = $this->apiHelper->getResource('User', $tu['users_id'] ?? null, $sessionToken)['name'] ?? '-';
+                $assignedTechs[] = $this->apiHelper->getUserName($tu['users_id'] ?? null, $sessionToken);
             }
         }
 

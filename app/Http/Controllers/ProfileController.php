@@ -25,7 +25,9 @@ class ProfileController extends Controller
         $user = Http::withHeaders([
             'App-Token' => $this->appToken,
             'Session-Token' => $sessionToken,
-        ])->get($this->glpiApiUrl . "/User/$userId");
+        ])->get($this->glpiApiUrl . "/User/$userId")->json();
+
+        $user['name'] = Session::get('glpi_user_name');
 
         return view('profile.index', compact('user'));
     }

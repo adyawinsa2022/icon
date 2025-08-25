@@ -9,7 +9,6 @@ class ApiHelper
 {
     protected $glpiApiUrl;
     protected $appToken;
-    private $userCache = [];
 
     public function __construct()
     {
@@ -24,15 +23,15 @@ class ApiHelper
     public function getUserName($id, $sessionToken)
     {
         if (!$id) return '-';
-        if (isset($this->userCache[$id])) return $this->userCache[$id];
 
         $res = Http::withHeaders([
             'App-Token' => $this->appToken,
             'Session-Token' => $sessionToken
         ])->get($this->glpiApiUrl . "/User/$id");
 
-        $name = $res->successful() ? ($res->json()['name'] ?? '-') : '-';
-        $this->userCache[$id] = $name;
+        $name = $res->successful()
+            ? (($res->json()['firstname'] ?? '') . ' ' . ($res->json()['realname'] ?? ''))
+            : '-';
         return $name;
     }
 

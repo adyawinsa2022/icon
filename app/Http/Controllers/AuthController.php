@@ -70,7 +70,7 @@ class AuthController extends Controller
 
         // Ambil ID user pertama (bisa disesuaikan kalau banyak profile)
         $userId = $userData['session']['glpiID'] ?? null;
-        $userName = $userData['session']['glpiname'] ?? $request->username;
+        $userName = $userData['session']['glpifriendlyname'] ?? $request->username;
 
         $userProfile = Http::withHeaders([
             'App-Token' => $this->appToken,
