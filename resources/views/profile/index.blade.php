@@ -32,14 +32,13 @@
     <div class="container">
         <div class="profile-card">
             <h4 class="mb-0">{{ $user['name'] }}</h4>
-            {{-- <small class="text-muted">{{ $user['phone'] ?? '-' }}</small> --}}
         </div>
 
-        <div class="container menu-list">
-            <a class="menu-item text-decoration-none text-reset" href="{{ route('profile.reset_password') }}">
+        <div class="menu-list">
+            {{-- <a class="menu-item text-decoration-none text-reset" href="{{ route('profile.reset_password') }}">
                 <span><i class="bi bi-key me-2"></i> Reset Password</span>
                 <i class="bi bi-chevron-right"></i>
-            </a>
+            </a> --}}
             <a class="menu-item text-decoration-none text-reset" href="{{ route('logout') }}">
                 <span><i class="bi bi-box-arrow-right me-2"></i> Logout</span>
                 <i class="bi bi-chevron-right"></i>
