@@ -36,7 +36,7 @@ class AuthController extends Controller
             'required' => 'Kolom :attribute harus diisi.',
         ];
         $request->validate([
-            'username' => 'required|string',
+            'email' => 'required|string|email',
             'password' => 'required|string',
         ], $errorMessage);
 
@@ -45,12 +45,12 @@ class AuthController extends Controller
             'App-Token' => $this->appToken,
             'Content-Type' => 'application/json',
         ])->post($this->glpiApiUrl . '/initSession', [
-            'login' => $request->username,
+            'login' => $request->email,
             'password' => $request->password,
         ]);
 
         if (!$response->successful()) {
-            return back()->withErrors(['login' => 'Login gagal, username & password tidak sesuai.']);
+            return back()->withErrors(['login' => 'Login gagal, email & password tidak sesuai.']);
         }
 
         $data = $response->json();
@@ -63,14 +63,14 @@ class AuthController extends Controller
         ])->get($this->glpiApiUrl . '/getFullSession');
 
         if (!$userResponse->successful()) {
-            return back()->withErrors(['login' => 'Gagal mengambil profil user.']);
+            return back()->withErrors(['login' => 'Gagal mengambil profil user, mohon ulangi kembali.']);
         }
 
         $userData = $userResponse->json();
 
         // Ambil ID user pertama (bisa disesuaikan kalau banyak profile)
-        $userId = $userData['session']['glpiID'] ?? null;
-        $userName = $userData['session']['glpifriendlyname'] ?? $request->username;
+        $userId = $userData['session']['glpiID'];
+        $userName = $userData['session']['glpifriendlyname'];
 
         $userProfile = Http::withHeaders([
             'App-Token' => $this->appToken,
