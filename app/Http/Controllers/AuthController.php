@@ -36,7 +36,7 @@ class AuthController extends Controller
             'required' => 'Kolom :attribute harus diisi.',
         ];
         $request->validate([
-            'email' => 'required|string|email',
+            'email' => 'required|string',
             'password' => 'required|string',
         ], $errorMessage);
 
