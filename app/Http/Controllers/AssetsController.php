@@ -102,8 +102,8 @@ class AssetsController extends Controller
         // Output: $interfaceType['name'], $totalStorage
 
         // User
-        $user = $this->apiHelper->getResource('User', $device['users_id'] ?? null, $sessionToken);
-        // Output: $user['name']
+        $user = $this->apiHelper->getUserName($device['users_id'] ?? null, $sessionToken);
+        // Output: $user
 
         // Lokasi
         $location = $this->apiHelper->getResource('Location', $device['locations_id'] ?? null, $sessionToken);
@@ -128,7 +128,7 @@ class AssetsController extends Controller
         $interfaceTypeName = data_get($interfaceType, 'name', '-');
         $device['storage'] = $interfaceTypeName . ' ' . ($totalStorage ?? 0) . ' GB';
 
-        $device['user'] = data_get($user, 'name', '-');
+        $device['user'] = $user ?? '-';
         $device['location'] = data_get($location, 'name', '-');
         return view('device.computer', compact('device', 'id'));
     }
@@ -164,8 +164,8 @@ class AssetsController extends Controller
         // Output: $manufacturer['name'], $model['name']
 
         // User
-        $user = $this->apiHelper->getResource('User', $device['users_id'] ?? null, $sessionToken);
-        // Output: $user['name']
+        $user = $this->apiHelper->getUserName($device['users_id'] ?? null, $sessionToken);
+        // Output: $user
 
         // Lokasi
         $location = $this->apiHelper->getResource('Location', $device['locations_id'] ?? null, $sessionToken);
@@ -182,7 +182,7 @@ class AssetsController extends Controller
 
         $device['manufacturer'] = data_get($manufacturer, 'name', '-');
         $device['model'] = data_get($model, 'name', '-');
-        $device['user'] = $user['name'] ?? '-';
+        $device['user'] = $user ?? '-';
         $device['location'] = $location['name'] ?? '-';
         return view('device.general', compact('device', 'id'));
     }
@@ -218,8 +218,8 @@ class AssetsController extends Controller
         // Output: $manufacturer['name'], $model['name']
 
         // User
-        $user = $this->apiHelper->getResource('User', $device['users_id'] ?? null, $sessionToken);
-        // Output: $user['name']
+        $user = $this->apiHelper->getUserName($device['users_id'] ?? null, $sessionToken);
+        // Output: $user
 
         // Lokasi
         $location = $this->apiHelper->getResource('Location', $device['locations_id'] ?? null, $sessionToken);
@@ -235,7 +235,7 @@ class AssetsController extends Controller
 
         $device['manufacturer'] = data_get($manufacturer, 'name', '-');
         $device['model'] = data_get($model, 'name', '-');
-        $device['user'] = $user['name'] ?? '-';
+        $device['user'] = $user ?? '-';
         $device['location'] = $location['name'] ?? '-';
         return view('device.general', compact('device', 'id'));
     }
