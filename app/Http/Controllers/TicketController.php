@@ -25,26 +25,21 @@ class TicketController extends Controller
      * Function: index
      * Description: menampilkan daftar tabel tiket
      *************************************************/
-    public function index($status = 'notold', $page = 1)
+    public function index()
     {
-        $perPage = 15;
-        $start = ($page - 1) * $perPage;
-        $end = $start + $perPage - 1;
-
         $sessionToken = Session::get('glpi_session_token');
         $userId = Session::get('glpi_user_id');
         $userProfile = Session::get('glpi_user_profile');
 
         if (in_array($userProfile, ['Technician', 'Super-Admin'])) {
             // Jika login sebagai Tech/Admin
-            $title = ($status == 'notold') ? 'Tiket Belum Selesai' : 'Semua Tiket';
+            $title = 'Tiket Belum Selesai';
             $params = [
                 'criteria[0][field]' => 12,
                 'criteria[0][searchtype]' => 'equals',
-                'criteria[0][value]' => "$status",
+                'criteria[0][value]' => 'notold',
                 'sort[0]' => 19,
                 'order[0]' => 'DESC',
-                'range' => "$start-$end",
             ];
         } else {
             // Jika login sebagai User biasa
@@ -53,7 +48,6 @@ class TicketController extends Controller
                 'criteria[0][field]' => 4,
                 'criteria[0][searchtype]' => 'equals',
                 'criteria[0][value]' => $userId,
-                'range' => "$start-$end",
             ];
         }
 
@@ -68,8 +62,6 @@ class TicketController extends Controller
         ])->get($url);
         $data = $response->json();
         $ticketsRaw = $data['data'] ?? [];
-        $totalTickets = $data['totalcount'];
-        $totalPages = ceil($totalTickets / $perPage);
 
         // Remap raw key dari GLPI ke readable key 
         $tickets = collect($ticketsRaw)->map(function ($ticket) {
@@ -79,7 +71,6 @@ class TicketController extends Controller
                 'requester_id' => $ticket['4'] ?? null,
                 'status' => $this->apiHelper->getStatusName($ticket['12'] ?? 0),
                 'date_mod' => $ticket['19'] ?? null,
-                // tambah key lainnya sesuai kebutuhan
             ];
         })->values();
 
@@ -89,10 +80,6 @@ class TicketController extends Controller
         return view('ticket.index', compact(
             'title',
             'tickets',
-            'userProfile',
-            'status',
-            'page',
-            'totalPages',
         ));
     }
 

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/bootstrap-icons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app-1755576892.css') }}">
+    @livewireStyles
 </head>
 
 <body class="bg-light d-flex flex-column" style="min-height: 100vh; padding-bottom: 100px;">
@@ -117,9 +118,22 @@
                 overlay.classList.add("d-flex");
             });
         });
+
+        // Tampilkan Loading saat Livewire request
+        document.addEventListener('livewire:load', function() {
+            Livewire.hook('message.sent', () => {
+                overlay.classList.remove("d-none");
+                overlay.classList.add("d-flex");
+            });
+            Livewire.hook('message.processed', () => {
+                overlay.classList.remove("d-flex");
+                overlay.classList.add("d-none");
+            });
+        });
     </script>
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+    @livewireScripts
 </body>
 
 </html>
