@@ -38,6 +38,5 @@ Route::middleware(['glpi.session'])->group(function () {
     Route::post('/ticket/{id}/solution', [TicketController::class, 'solution'])->name('ticket.solution');
     Route::post('/ticket/{ticketId}/approval/{solutionId?}', [TicketController::class, 'approval'])->name('ticket.approval');
     Route::get('/ticket/history/{deviceName}', [TicketController::class, 'history'])->name('ticket.device');
-    Route::get('/ticket/filter/{status?}/{page?}', [TicketController::class, 'index'])->name('ticket.filter');
     Route::get('/', [TicketController::class, 'index'])->name('ticket.index');
 });

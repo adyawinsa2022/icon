@@ -17,7 +17,7 @@
     </div>
 
     {{-- Nav Pills untuk memilih form --}}
-    @if (in_array($userProfile, ['Technician', 'Super-Admin']) && Route::currentRouteName() !== 'ticket.device')
+    @if (in_array($userProfile, ['Technician', 'Super-Admin']) && !$deviceName)
         <ul class="nav nav-pills nav-pills-sm mb-3">
             <li class="nav-item">
                 <a wire:click="$set('status', 'notold')" class="nav-link {{ $status === 'notold' ? 'active' : '' }}"

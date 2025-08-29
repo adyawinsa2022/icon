@@ -27,60 +27,8 @@ class TicketController extends Controller
      *************************************************/
     public function index()
     {
-        $sessionToken = Session::get('glpi_session_token');
-        $userId = Session::get('glpi_user_id');
-        $userProfile = Session::get('glpi_user_profile');
-
-        if (in_array($userProfile, ['Technician', 'Super-Admin'])) {
-            // Jika login sebagai Tech/Admin
-            $title = 'Tiket Belum Selesai';
-            $params = [
-                'criteria[0][field]' => 12,
-                'criteria[0][searchtype]' => 'equals',
-                'criteria[0][value]' => 'notold',
-                'sort[0]' => 19,
-                'order[0]' => 'DESC',
-            ];
-        } else {
-            // Jika login sebagai User biasa
-            $title = 'Tiket Saya';
-            $params = [
-                'criteria[0][field]' => 4,
-                'criteria[0][searchtype]' => 'equals',
-                'criteria[0][value]' => $userId,
-            ];
-        }
-
-        // Build Parameter
-        $query = http_build_query($params);
-        $url = rtrim($this->glpiApiUrl, '/') . '/search/Ticket?' . $query;
-
-        // Request ke Enpoint /search dengan Parameter sebelumnya
-        $response = Http::withHeaders([
-            'App-Token' => $this->appToken,
-            'Session-Token' => $sessionToken,
-        ])->get($url);
-        $data = $response->json();
-        $ticketsRaw = $data['data'] ?? [];
-
-        // Remap raw key dari GLPI ke readable key 
-        $tickets = collect($ticketsRaw)->map(function ($ticket) {
-            return [
-                'id' => $ticket['2'] ?? null,
-                'name' => $ticket['1'] ?? null,
-                'requester_id' => $ticket['4'] ?? null,
-                'status' => $this->apiHelper->getStatusName($ticket['12'] ?? 0),
-                'date_mod' => $ticket['19'] ?? null,
-            ];
-        })->values();
-
-        // Sort Last Update ke terbaru
-        $tickets = $tickets->sortByDesc('date_mod')->values();
-
-        return view('ticket.index', compact(
-            'title',
-            'tickets',
-        ));
+        // Controller hanya mengembalikan view, Livewire yang memproses datanya
+        return view('ticket.index');
     }
 
     /*************************************************
@@ -89,80 +37,9 @@ class TicketController extends Controller
      *************************************************/
     public function history(Request $request, $deviceName)
     {
-        // Ambil halaman saat ini (default 1)
-        $page = $request->input('page', 1);
-        $perPage = 15;
-        $start = ($page - 1) * $perPage;
-        $end = $start + $perPage - 1;
-
-        $sessionToken = Session::get('glpi_session_token');
-        $userId = Session::get('glpi_user_id');
-        $userProfile = Session::get('glpi_user_profile');
-
-        // Cari di nama GLPI langsung
-        $foundDevice = $this->apiHelper->getIdByNameSearch(null, $deviceName);
-        if (empty($foundDevice)) {
-            abort(404);
-        }
-
-        // Jika ada perangkat, ambil Tiket bedasarkan tipe perangkat
-        $device = $this->apiHelper->getResource($foundDevice['type'], $foundDevice['id'], $sessionToken);
-        // dd($device['name']);
-
-        $title = 'Tiket ' . $device['name'];
-
-        $params = [
-            'criteria[0][field]' => 131,
-            'criteria[0][searchtype]' => 'equals',
-            'criteria[0][value]' => $foundDevice['type'],
-            'forcedisplay[0]' => 13,
-            'forcedisplay[2]' => 4,
-            'forcedisplay[3]' => 12,
-            'forcedisplay[4]' => 19,
-            'range' => "$start-$end",
-        ];
-
-        // Build Parameter
-        $query = http_build_query($params);
-        $url = rtrim($this->glpiApiUrl, '/') . '/search/Ticket?' . $query;
-
-        // Request ke Enpoint /search dengan Parameter sebelumnya
-        $response = Http::withHeaders([
-            'App-Token' => $this->appToken,
-            'Session-Token' => $sessionToken,
-        ])->get($url);
-        $data = $response->json();
-        $ticketsRaw = $data['data'] ?? [];
-        $totalTickets = $data['totalcount'];
-        $totalPages = ceil($totalTickets / $perPage);
-
-        $deviceId = $foundDevice['id'];
-        $ticketsRaw = array_filter($ticketsRaw, function ($item) use ($deviceId) {
-            return isset($item[13]) && (int)$item[13] === (int)$deviceId;
-        });
-
-        // Remap raw key dari GLPI ke readable key 
-        $tickets = collect($ticketsRaw)->map(function ($ticket) {
-            return [
-                'id' => $ticket['2'] ?? null,
-                'name' => $ticket['1'] ?? null,
-                'requester_id' => $ticket['4'] ?? null,
-                'status' => $this->apiHelper->getStatusName($ticket['12'] ?? 0),
-                'date_mod' => $ticket['19'] ?? null,
-                // tambah key lainnya sesuai kebutuhan
-            ];
-        })->values();
-
-        // Sort Last Update ke terbaru
-        $tickets = $tickets->sortByDesc('date_mod')->values();
-
-
+        // Controller hanya mengembalikan view dengan parameter, Livewire yang memproses datanya
         return view('ticket.index', compact(
-            'title',
-            'tickets',
-            'userProfile',
-            'page',
-            'totalPages',
+            'deviceName',
         ));
     }
 

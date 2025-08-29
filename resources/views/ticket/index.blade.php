@@ -1,7 +1,8 @@
 <x-layout>
     <div class="container pt-3 flex-grow-1 d-flex flex-column">
 
-        @livewire('ticket-list')
+        {{-- Komponen daftar tiket --}}
+        @livewire('ticket-list', ['deviceName' => $deviceName ?? null])
 
         <!-- Modal kamera -->
         <div id="scannerModal" class="modal fade">
@@ -198,9 +199,12 @@
                             .then(data => {
                                 const device = data.data
                                 if (data.status === "success") {
+                                    // Mengirim event ke komponen Livewire yang akan memicu logika riwayat perangkat
+                                    Livewire.emit('showDeviceHistory', kode);
+
+                                    // Opsional: Memperbarui URL di browser tanpa reload halaman
                                     const historyUrl = "{{ url('ticket/history') }}";
-                                    // Redirect dengan parameter
-                                    window.location.href = `${historyUrl}/${kode}`;
+                                    window.history.pushState(null, '', `${historyUrl}/${kode}`);
                                 } else {
                                     alert("Error: " + data.message + ` (${kode})`);
                                 }
