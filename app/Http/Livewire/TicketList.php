@@ -162,13 +162,25 @@ class TicketList extends Component
         $tickets = $tickets->sortByDesc('date_mod')->values();
 
         // Buat objek Paginator secara manual
-        $paginatedTickets = new LengthAwarePaginator(
-            $tickets->forPage($page, $perPage),
-            $totalTickets,
-            $perPage,
-            $page,
-            ['path' => Request::url()]
-        );
+        // Jika data dari API sudah paginated, kita tidak perlu forPage lagi
+        if (!$this->deviceName) {
+            $paginatedTickets = new LengthAwarePaginator(
+                $tickets, // Gunakan collection yang sudah di-fetch
+                $totalTickets,
+                $perPage,
+                $page,
+                ['path' => Request::url()]
+            );
+        } else {
+            // Untuk mode riwayat perangkat, kita harus tetap menggunakan forPage
+            $paginatedTickets = new LengthAwarePaginator(
+                $tickets->forPage($page, $perPage),
+                $totalTickets,
+                $perPage,
+                $page,
+                ['path' => Request::url()]
+            );
+        }
 
         return view('livewire.ticket-list', [
             'title' => $title,
