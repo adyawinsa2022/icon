@@ -119,6 +119,7 @@ class TicketList extends Component
                     'order[0]' => 'DESC',
                 ];
             } else {
+                $title = 'Tiket Saya';
                 $params = [
                     'criteria[0][field]' => 4,
                     'criteria[0][searchtype]' => 'equals',
