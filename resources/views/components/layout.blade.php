@@ -104,19 +104,24 @@
         });
 
         // Tampilkan loading saat klik link (menu navigasi)
-        document.querySelectorAll("a").forEach(link => {
-            link.addEventListener("click", function(e) {
-                const href = link.getAttribute("href");
+        document.addEventListener('click', function(e) {
+            // Periksa apakah elemen yang diklik adalah <a> atau anak dari <a>
+            const link = e.target.closest('a');
 
-                // Hindari external link, anchor, dan new tab
-                if (!href || href.startsWith('#') || link.target === '_blank' || e.ctrlKey || e.metaKey)
-                    return;
+            if (!link) {
+                return;
+            }
 
-                // Tampilkan loading
-                console.log('loading');
-                overlay.classList.remove("d-none");
-                overlay.classList.add("d-flex");
-            });
+            const href = link.getAttribute("href");
+            // Hindari external link, anchor, dan new tab
+            if (!href || href.startsWith('#') || link.target === '_blank' || e.ctrlKey || e.metaKey) {
+                return;
+            }
+
+            // Tampilkan loading
+            console.log('loading');
+            overlay.classList.remove("d-none");
+            overlay.classList.add("d-flex");
         });
 
         // Tampilkan Loading saat Livewire request
