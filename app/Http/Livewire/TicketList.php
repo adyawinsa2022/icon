@@ -70,6 +70,7 @@ class TicketList extends Component
         $userProfile = Session::get('glpi_user_profile');
         $page = $this->page; // Livewire secara otomatis menyediakan properti $this->page
 
+        $this->deviceName = strtoupper($this->deviceName);
         if ($this->deviceName) {
             // Jika ada perangkat, mengambil data tiket perangkat tersebut
             $foundDevice = $apiHelper->getIdByNameSearch(null, $this->deviceName);
