@@ -12,6 +12,10 @@
                             <td>{{ $ticket['requesterName'] ?? '-' }}</td>
                         </tr>
                         <tr>
+                            <td class="fw-semibold">Dibuat</td>
+                            <td>{{ $ticket['date_creation'] ?? '-' }}</td>
+                        </tr>
+                        <tr>
                             <td class="fw-semibold">Bertugas</td>
                             <td>{{ $assignedTechs ? implode(', ', $assignedTechs) : '-' }}</td>
                         </tr>
@@ -39,7 +43,7 @@
                             <td>{{ $ticket['categoryName'] ?? '-' }}</td>
                         </tr>
                         <tr>
-                            <td class="fw-semibold">Location</td>
+                            <td class="fw-semibold">Lokasi</td>
                             <td>{!! html_entity_decode($ticket['locationName'] ?? '-') !!}</td>
                         </tr>
                     </tbody>
