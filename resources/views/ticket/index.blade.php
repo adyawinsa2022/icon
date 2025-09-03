@@ -200,7 +200,9 @@
                                 const device = data.data
                                 if (data.status === "success") {
                                     // Mengirim event ke komponen Livewire yang akan memicu logika riwayat perangkat
-                                    Livewire.emit('showDeviceHistory', kode);
+                                    Livewire.dispatch('showDeviceHistory', {
+                                        deviceName: kode
+                                    });
 
                                     // Opsional: Memperbarui URL di browser tanpa reload halaman
                                     const historyUrl = "{{ url('ticket/history') }}";

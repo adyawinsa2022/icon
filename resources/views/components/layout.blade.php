@@ -125,12 +125,12 @@
         });
 
         // Tampilkan Loading saat Livewire request
-        document.addEventListener('livewire:load', function() {
-            Livewire.hook('message.sent', () => {
+        document.addEventListener('livewire:init', function() {
+            Livewire.hook('commit', () => {
                 overlay.classList.remove("d-none");
                 overlay.classList.add("d-flex");
             });
-            Livewire.hook('message.processed', () => {
+            Livewire.hook('morph', () => {
                 overlay.classList.remove("d-flex");
                 overlay.classList.add("d-none");
             });
