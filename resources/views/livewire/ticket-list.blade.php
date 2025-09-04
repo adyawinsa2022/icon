@@ -1,4 +1,4 @@
-<div>
+<div wire:poll.30s>
     <style>
         .nav-pills-sm .nav-link {
             padding: 0.25rem 0.75rem;
