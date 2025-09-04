@@ -25,16 +25,75 @@ class AssetsController extends Controller
      *************************************************/
     public function show($deviceName)
     {
+        $deviceName = strtoupper($deviceName);
+        $deviceName = preg_replace('/^NCOM(?!-)/', 'NCOM-', $deviceName);
         $foundDevice = $this->apiHelper->getIdByNameSearch(null, $deviceName);
         if (!empty($foundDevice)) {
             $deviceId = $foundDevice['id'];
             $deviceType = strtolower($foundDevice['type']);
-            if (method_exists($this, $deviceType)) {
+            if (str_starts_with($deviceName, 'NCOM')) {
+                $deviceType = 'Computer';
+                return $this->general($deviceId, $deviceType);
+            } else if (method_exists($this, $deviceType)) {
                 // memanggil function dengan nama sesuai param $type
                 return $this->$deviceType($deviceId);
             }
         }
         abort(404);
+    }
+
+    public function general($id, $type)
+    {
+        $sessionToken = Session::get('glpi_session_token');
+        $tempSession = null;
+        $deviceType = $type;
+
+        // Jika tidak ada session, gunakan akun khusus
+        if (!$sessionToken) {
+            // Jika belum login, initSession pakai akun API khusus
+            $tempSession = Http::withHeaders([
+                'App-Token' => $this->appToken,
+                'Content-Type' => 'application/json',
+            ])->post($this->glpiApiUrl . '/initSession', [
+                'login' => config('glpi.api_user'),
+                'password' => config('glpi.api_password'),
+            ])->json()['session_token'];
+            $sessionToken = $tempSession;
+        }
+
+        // Ambil data asset
+        $device = $this->apiHelper->getResource($deviceType, $id, $sessionToken);
+        // dd($device);
+        if (is_null($device)) {
+            abort(404);
+        }
+
+        // Model: manufaktur
+        $manufacturer = $this->apiHelper->getResource('Manufacturer', $device['manufacturers_id'] ?? null, $sessionToken);
+        // Output: $manufacturer['name'], $model['name']
+
+        // User
+        $user = $this->apiHelper->getUserName($device['users_id'] ?? null, $sessionToken);
+        // Output: $user
+
+        // Lokasi
+        $location = $this->apiHelper->getResource('Location', $device['locations_id'] ?? null, $sessionToken);
+        // Output: $location['name']
+
+        // Hapus session jika tadi login dengan akun khusus
+        if ($tempSession) {
+            // Hapus session token sementara
+            Http::withHeaders([
+                'App-Token' => $this->appToken,
+                'Session-Token' => $tempSession,
+            ])->get($this->glpiApiUrl . '/killSession');
+        }
+
+        $device['manufacturer'] = data_get($manufacturer, 'name', '-');
+        $device['model'] = '-';
+        $device['user'] = $user ?? '-';
+        $device['location'] = $location['name'] ?? '-';
+        return view('device.general', compact('device', 'id'));
     }
 
     public function computer($id)
@@ -246,6 +305,9 @@ class AssetsController extends Controller
      *************************************************/
     public function info($deviceName)
     {
+        $deviceName = strtoupper($deviceName);
+        $deviceName = preg_replace('/^NCOM(?!-)/', 'NCOM-', $deviceName);
+
         $sessionToken = Http::withHeaders([
             'App-Token' => $this->appToken,
             'Content-Type' => 'application/json',
