@@ -34,51 +34,54 @@
         <x-bottom-navbar />
     @endif
 
-    @if (session('success'))
-        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999">
-            <div id="successToast" class="toast align-items-center bg-success-subtle border-0" role="alert">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        {{ session('success') }}
-                    </div>
-                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999">
+        <div id="appToast" class="toast align-items-center border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">
                 </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toastEl = document.getElementById('appToast');
+            const toastMessageEl = document.getElementById('toastMessage');
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const successToastEl = document.getElementById("successToast");
-                const successToast = new bootstrap.Toast(successToastEl, {
+            // Fungsi untuk menampilkan toast
+            function showToast(message, type) {
+                toastMessageEl.innerHTML = message;
+
+                // Hapus semua kelas warna yang ada
+                toastEl.classList.remove('bg-success-subtle', 'bg-danger-subtle');
+
+                // Tambahkan kelas warna sesuai tipe
+                if (type === 'success') {
+                    toastEl.classList.add('bg-success-subtle');
+                } else if (type === 'error') {
+                    toastEl.classList.add('bg-danger-subtle');
+                }
+
+                const toast = new bootstrap.Toast(toastEl, {
                     delay: 3000
-                }).show();
-            });
-        </script>
-    @endif
+                });
+                toast.show();
+            }
 
-    @if ($errors->any())
-        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999">
-            <div id="errorToast" class="toast align-items-center bg-danger-subtle border-0" role="alert">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        @foreach ($errors->all() as $error)
-                            {{ $error }}<br>
-                        @endforeach
-                    </div>
-                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            </div>
-        </div>
+            // 1. Cek jika ada flash message dari Controller (saat halaman di-reload)
+            @if (session('success'))
+                showToast("{{ session('success') }}", 'success');
+            @endif
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const errorToastEl = document.getElementById("errorToast");
-                const errorToast = new bootstrap.Toast(errorToastEl, {
-                    delay: 3000
-                }).show();
-            });
-        </script>
-    @endif
+            @if ($errors->any())
+                let errorMessage = '';
+                @foreach ($errors->all() as $error)
+                    errorMessage += "{{ $error }}<br>";
+                @endforeach
+                showToast(errorMessage, 'error');
+            @endif
+        });
+    </script>
 
     <script>
         const overlay = document.getElementById("loading-overlay");
