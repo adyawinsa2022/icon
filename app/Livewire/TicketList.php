@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Helpers\ApiHelper;
+use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
@@ -17,8 +18,6 @@ class TicketList extends Component
     public $status = 'notold';
     public $page = 1;
     public $deviceName = null;
-
-    protected $listeners = ['showDeviceHistory' => 'showDeviceHistory'];
 
     public function gotoPage($page)
     {
@@ -38,6 +37,7 @@ class TicketList extends Component
     }
 
     // Menampilkan riwayat perangkat dari Scan QR
+    #[On('showDeviceHistory')]
     public function showDeviceHistory($deviceName)
     {
         $this->deviceName = $deviceName;

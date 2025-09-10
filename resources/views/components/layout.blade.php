@@ -80,6 +80,11 @@
                 @endforeach
                 showToast(errorMessage, 'error');
             @endif
+
+            // 1. Livewire listener
+            Livewire.on('show-toast', (event) => {
+                showToast(event.message, event.type);
+            });
         });
     </script>
 
@@ -97,7 +102,6 @@
         // Tampilkan loading saat form disubmit
         document.querySelectorAll("form").forEach(form => {
             form.addEventListener("submit", function() {
-                console.log('loading');
                 overlay.classList.remove("d-none");
                 overlay.classList.add("d-flex");
 
@@ -122,7 +126,6 @@
             }
 
             // Tampilkan loading
-            console.log('loading');
             overlay.classList.remove("d-none");
             overlay.classList.add("d-flex");
         });
@@ -133,7 +136,7 @@
                 overlay.classList.remove("d-none");
                 overlay.classList.add("d-flex");
             });
-            Livewire.hook('morph', () => {
+            Livewire.hook('morphed', () => {
                 overlay.classList.remove("d-flex");
                 overlay.classList.add("d-none");
             });

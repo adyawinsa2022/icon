@@ -32,11 +32,6 @@ Route::middleware(['glpi.session'])->group(function () {
     Route::get('/ticket/create/{deviceName?}', [TicketController::class, 'create'])->name('ticket.create');
     Route::post('/ticket/store', [TicketController::class, 'store'])->name('ticket.store');
     Route::get('/ticket/{id}', [TicketController::class, 'show'])->name('ticket.show');
-    Route::get('/ticket/{id}/take', [TicketController::class, 'take'])->name('ticket.take');
-    Route::post('/ticket/{id}/followup', [TicketController::class, 'followup'])->name('ticket.followup');
-    Route::post('/ticket/{id}/task', [TicketController::class, 'task'])->name('ticket.task');
-    Route::post('/ticket/{id}/solution', [TicketController::class, 'solution'])->name('ticket.solution');
-    Route::post('/ticket/{ticketId}/approval/{solutionId?}', [TicketController::class, 'approval'])->name('ticket.approval');
     Route::get('/ticket/history/{deviceName}', [TicketController::class, 'history'])->name('ticket.device');
     Route::get('/', [TicketController::class, 'index'])->name('ticket.index');
 });
