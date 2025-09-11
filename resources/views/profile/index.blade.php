@@ -35,10 +35,13 @@
         </div>
 
         <div class="menu-list">
-            {{-- <a class="menu-item text-decoration-none text-reset" href="{{ route('profile.reset_password') }}">
-                <span><i class="bi bi-key me-2"></i> Reset Password</span>
-                <i class="bi bi-chevron-right"></i>
-            </a> --}}
+            {{-- Login bukan email adyawinsa --}}
+            @if (!$user['adyawinsa'])
+                <a class="menu-item text-decoration-none text-reset" href="{{ route('profile.reset_password') }}">
+                    <span><i class="bi bi-key me-2"></i> Reset Password</span>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            @endif
             <a class="menu-item text-decoration-none text-reset" href="{{ route('logout') }}">
                 <span><i class="bi bi-box-arrow-right me-2"></i> Logout</span>
                 <i class="bi bi-chevron-right"></i>

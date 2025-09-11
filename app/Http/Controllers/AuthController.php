@@ -83,6 +83,10 @@ class AuthController extends Controller
         Session::put('glpi_user_name', $userName);
         Session::put('glpi_user_profile', $userProfile);
 
+        if (str_ends_with($request->email, '@adyawinsa.com')) {
+            Session::put('glpi_email_adyawinsa', true);
+        }
+
         // 4️⃣ Redirect jika ada
         if (in_array($request->password, ['API2025', 'API@2025'])) {
             return redirect()->route('profile.reset_password')->with('success', 'Mohon ganti password Anda.');

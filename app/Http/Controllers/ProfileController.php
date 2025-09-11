@@ -28,6 +28,7 @@ class ProfileController extends Controller
         ])->get($this->glpiApiUrl . "/User/$userId")->json();
 
         $user['name'] = Session::get('glpi_user_name');
+        $user['adyawinsa'] = Session::get('glpi_email_adyawinsa');
 
         return view('profile.index', compact('user'));
     }

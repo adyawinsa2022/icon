@@ -13,7 +13,7 @@
     <div class="container">
         <div class="form-card">
             <h4 class="text-center mb-4">Reset Password</h4>
-            <form method="POST" action="{{ route('profile.reset_password.process') }}">
+            <form method="POST" action="{{ route('profile.reset_password.process') }}" class="mb-4">
                 @csrf
                 <div class="mb-3">
                     <input type="password" id="password" name="password" class="form-control" placeholder="Password baru"
@@ -25,6 +25,10 @@
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Simpan Password</button>
             </form>
+            <ul>
+                <li>Password minimal 8 karakter</li>
+                <li>Password mengandung minimal 1 angka</li>
+            </ul>
         </div>
     </div>
 </x-layout>
