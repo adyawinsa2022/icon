@@ -18,6 +18,8 @@ class TicketList extends Component
     public $status = 'notold';
     public $page = 1;
     public $deviceName = null;
+    public $ticketsDateMod = [];
+    public $ticketsNotif = [];
 
     public function gotoPage($page)
     {
@@ -56,10 +58,19 @@ class TicketList extends Component
         // Inisialisasi properti dari config
         $this->glpiApiUrl = config('glpi.api_url');
         $this->appToken = config('glpi.api_app_token');
+        $this->ticketsDateMod = Session::get('tickets_date_mod');
+        $this->ticketsNotif = Session::get('tickets_notif');
 
         if ($deviceName) {
             $this->deviceName = $deviceName;
         }
+    }
+
+    public function openTicket($ticketId)
+    {
+        $this->ticketsNotif[$ticketId] = false;
+        Session::put('tickets_notif', $this->ticketsNotif);
+        return redirect()->route('ticket.show', $ticketId);
     }
 
     public function render(ApiHelper $apiHelper)
@@ -162,6 +173,37 @@ class TicketList extends Component
 
         // Sort Last Update ke terbaru
         $tickets = $tickets->sortByDesc('date_mod')->values();
+
+        $currentDateMods = $tickets->pluck('date_mod', 'id')->toArray();
+
+        $tickets = $tickets->map(function ($ticket) use ($currentDateMods) {
+
+            $ticketId = $ticket['id'];
+            $dateMod = $ticket['date_mod'];
+
+            // Ambil notif dari session jika ada, default false
+            $notif = $this->ticketsNotif[$ticketId] ?? false;
+
+            // Hanya set notif true jika tiket lama dan date_mod berubah
+            if (isset($this->ticketsDateMod[$ticketId]) && $this->ticketsDateMod[$ticketId] !== $dateMod) {
+                $notif = true;
+            }
+
+            // Update properti ticketsNotif
+            $this->ticketsNotif[$ticketId] = $notif;
+
+            $ticket['notif'] = $notif;
+
+            return $ticket;
+        })->values();
+
+        // Update snapshot date_mod
+        $this->ticketsDateMod = $currentDateMods;
+
+        // Simpan notif ke session
+        Session::put('tickets_date_mod', $this->ticketsDateMod);
+        Session::put('tickets_notif', $this->ticketsNotif);
+
 
         // Buat objek Paginator secara manual
         // Jika data dari API sudah paginated, kita tidak perlu forPage lagi

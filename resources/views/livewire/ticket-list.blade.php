@@ -39,8 +39,15 @@
         <p>Tidak ada tiket.</p>
     @else
         @foreach ($tickets as $ticket)
-            <a href="{{ route('ticket.show', $ticket['id']) }}"
+            <a wire:click.prevent="openTicket({{ $ticket['id'] }})" href="#"
                 class="card text-decoration-none text-dark mb-2 shadow-sm rounded-4">
+                {{-- Titik merah notif --}}
+                @if ($ticket['notif'])
+                    <span
+                        class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                        <span class="visually-hidden">New alerts</span>
+                    </span>
+                @endif
                 <div class="card-body">
                     <h5 class="card-title">{{ $ticket['name'] }}</h5>
                     <div class="d-flex justify-content-between align-items-center">
