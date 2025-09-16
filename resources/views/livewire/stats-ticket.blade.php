@@ -1,0 +1,123 @@
+<div wire:poll.30s="getStatsTicket">
+    <h5 class="fw-bold mb-2">Statistik Tiket</h5>
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+            @if ($ticket['total'] > 0)
+                <div class="row d-flex flex-column justify-content-center align-items-center mb-3">
+                    <span class="position-absolute text-center fs-1 fw-bold">{{ $ticket['total'] }}</span>
+                    <div style="width: 300px; height: 300px; padding: 0;">
+                        <canvas id="ticketPieChart"></canvas>
+                    </div>
+                </div>
+            @else
+                <p class="text-center">Tidak ada Tiket</p>
+            @endif
+            <div class="row justify-content-evenly mb-3">
+                <!-- Total -->
+                <div class="col-3 px-2">
+                    <div class="d-flex flex-column py-3 rounded text-center shadow border border-black border-opacity-25"
+                        style="background-color: white">
+                        <span>{{ $ticket['total'] ?? 0 }}</span>
+                        <span class="text-nowrap">Total</span>
+                    </div>
+                </div>
+
+                <!-- Active -->
+                <div class="col-3 px-2">
+                    <div class="d-flex flex-column py-3 rounded text-center shadow text-white"
+                        style="background-color: #0D6EFD;">
+                        <span>{{ $ticket['active'] ?? 0 }}</span>
+                        <span class="text-nowrap">Aktif</span>
+                    </div>
+                </div>
+
+                <!-- Solved -->
+                <div class="col-3 px-2">
+                    <div class="d-flex flex-column py-3 rounded text-center shadow" style="background-color: #d8d9d9;">
+                        <span>{{ $ticket['solved'] ?? 0 }}</span>
+                        <span class="text-nowrap">Selesai</span>
+                    </div>
+                </div>
+
+                <!-- Closed -->
+                <div class="col-3 px-2">
+                    <div class="d-flex flex-column py-3 rounded text-center shadow text-white"
+                        style="background-color: #505051;">
+                        <span>{{ $ticket['closed'] ?? 0 }}</span>
+                        <span class="text-nowrap">Tutup</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center">
+                <a href="{{ route('ticket.index') }}">Lihat Tiket <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <script src="{{ asset('js/chart.js-4.5.0/chart.js') }}"></script>
+    @if ($ticket['total'] > 0)
+        <script>
+            let ticketChart = null;
+
+            function createChart(dataTicket) {
+                const ctx = document.getElementById('ticketPieChart').getContext('2d');
+
+                if (ticketChart) {
+                    ticketChart.destroy();
+                }
+
+                const data = {
+                    labels: ['Aktif', 'Selesai', 'Tutup'],
+                    datasets: [{
+                        data: [
+                            dataTicket.active ?? 0,
+                            dataTicket.solved ?? 0,
+                            dataTicket.closed ?? 0,
+                        ],
+                        backgroundColor: ['#0D6EFD', '#d8d9d9', '#505051'],
+                        borderWidth: 1
+                    }]
+                };
+
+                ticketChart = new Chart(ctx, {
+                    type: 'doughnut', // <-- pakai doughnut agar tengahnya bolong
+                    data: data,
+                    options: {
+                        cutout: '50%', // persentase bolongan tengah (default 50%)
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let value = context.raw;
+                                        let total = context.dataset.data.reduce((a, b) => a + b,
+                                            0);
+                                        return `${context.label}: ${value}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            createChart({
+                active: @json($ticket['active'] ?? 0),
+                solved: @json($ticket['solved'] ?? 0),
+                closed: @json($ticket['closed'] ?? 0),
+            });
+
+            document.addEventListener('livewire:init', function() {
+                Livewire.hook('morphed', () => {
+                    createChart({
+                        active: @json($ticket['active'] ?? 0),
+                        solved: @json($ticket['solved'] ?? 0),
+                        closed: @json($ticket['closed'] ?? 0),
+                    });
+                });
+            });
+        </script>
+    @endif
+</div>

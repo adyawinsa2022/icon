@@ -64,11 +64,13 @@ class FormApprovalSolution extends Component
 
             // === 3. Update solusi jika ada ===
             if ($this->solutionId) {
-                $solutionStatus = $this->answer === 'approve' ? 4 : 3; // 4=approved, 3=refused
+                $solutionStatus = $this->answer === 'approve' ? 3 : 4; // 3=approved, 4=refused
 
                 $payloadSolution = [
                     'input' => [
                         'status' => $solutionStatus,
+                        'users_id_approval' => $userId,
+                        'date_approval' => now()->format('Y-m-d H:i:s'),
                     ]
                 ];
 

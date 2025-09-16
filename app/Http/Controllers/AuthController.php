@@ -96,7 +96,7 @@ class AuthController extends Controller
             return redirect($redirect);
         }
 
-        return redirect()->route('ticket.index')->with('success', 'Berhasil login');
+        return redirect()->route('dashboard.index')->with('success', 'Berhasil login');
     }
 
     /*************************************************

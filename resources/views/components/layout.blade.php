@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ICON</title>
     <link rel="icon" href="{{ asset('icon.ico') }}" type="image/x-icon">
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/bootstrap-icons.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/app-1755576892.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap-5.3.7/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap-icons-1.13.1/bootstrap-icons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app-1757641885.css') }}">
     @livewireStyles
 </head>
 
@@ -143,7 +143,7 @@
         });
     </script>
 
-    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap-5.3.7/bootstrap.bundle.min.js') }}"></script>
     @livewireScripts
 </body>
 

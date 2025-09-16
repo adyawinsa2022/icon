@@ -67,32 +67,63 @@
     @endif
 
     {{-- Pagination --}}
-    @if ($totalPages > 1)
-        <nav class="d-flex justify-content-center">
-            <ul class="pagination">
-                {{-- Tombol Previous --}}
-                <li class="page-item {{ $page <= 1 ? 'disabled' : '' }}">
-                    <a class="page-link" href="#" wire:click.prevent="previousPage">
-                        <i class="bi bi-arrow-left-circle"></i>
+    <nav class="d-flex flex-column align-items-center">
+        <span>
+            Menampilkan {{ $tickets->firstItem() }} sampai {{ $tickets->lastItem() }} dari {{ $tickets->total() }}
+            tiket
+        </span>
+        @if ($totalPages > 1)
+            <ul class="pagination p-0">
+                {{-- Tombol ke halaman pertama --}}
+                <li class="page-item {{ $page == 1 ? 'disabled' : '' }}">
+                    <a class="page-link" href="#" wire:click.prevent="gotoPage(1)">
+                        <i class="bi bi-chevron-double-left"></i>
                     </a>
                 </li>
 
-                {{-- Nomor halaman --}}
-                @for ($i = 1; $i <= $totalPages; $i++)
-                    <li class="page-item {{ $page == $i ? 'active' : '' }}">
-                        <a class="page-link" href="#" wire:click.prevent="gotoPage({{ $i }})">
-                            {{ $i }}
-                        </a>
+                {{-- Tombol Previous --}}
+                <li class="page-item {{ $page == 1 ? 'disabled' : '' }}">
+                    <a class="page-link" href="#" wire:click.prevent="previousPage">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+
+                {{-- Ellipsis sebelum angka jika halaman jauh dari awal --}}
+                @if ($page > 3)
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                @endif
+
+                {{-- Halaman di sekitar halaman aktif (2 sebelum & 2 sesudah) --}}
+                @for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++)
+                    <li class="page-item {{ $i == $page ? 'active' : '' }}">
+                        <a class="page-link" href="#"
+                            wire:click.prevent="gotoPage({{ $i }})">{{ $i }}</a>
                     </li>
                 @endfor
 
+                {{-- Ellipsis setelah angka jika masih ada halaman yang belum ditampilkan --}}
+                @if ($page + 3 <= $totalPages)
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                @endif
+
                 {{-- Tombol Next --}}
-                <li class="page-item {{ $page >= $totalPages ? 'disabled' : '' }}">
+                <li class="page-item {{ $page == $totalPages ? 'disabled' : '' }}">
                     <a class="page-link" href="#" wire:click.prevent="nextPage">
-                        <i class="bi bi-arrow-right-circle"></i>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+
+                {{-- Tombol ke halaman terakhir --}}
+                <li class="page-item {{ $page == $totalPages ? 'disabled' : '' }}">
+                    <a class="page-link" href="#" wire:click.prevent="gotoPage({{ $totalPages }})">
+                        <i class="bi bi-chevron-double-right"></i>
                     </a>
                 </li>
             </ul>
-        </nav>
-    @endif
+        @endif
+    </nav>
 </div>
