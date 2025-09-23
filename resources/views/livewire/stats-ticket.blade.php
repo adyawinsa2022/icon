@@ -4,7 +4,8 @@
         <div class="card-body">
             @if ($ticket['total'] > 0)
                 <div class="row d-flex flex-column justify-content-center align-items-center mb-3">
-                    <span class="position-absolute text-center fs-1 fw-bold">{{ $ticket['total'] }}</span>
+                    <span class="position-absolute text-center fs-1 fw-bold counter"
+                        data-target="{{ $ticket['total'] ?? 0 }}">0</span>
                     <div style="width: 300px; height: 300px; padding: 0;">
                         <canvas id="ticketPieChart"></canvas>
                     </div>
@@ -17,7 +18,7 @@
                 <div class="col-3 px-2">
                     <div class="d-flex flex-column py-3 rounded text-center shadow border border-black border-opacity-25"
                         style="background-color: white">
-                        <span>{{ $ticket['total'] ?? 0 }}</span>
+                        <span class="counter" data-target="{{ $ticket['total'] ?? 0 }}">0</span>
                         <span class="text-nowrap">Total</span>
                     </div>
                 </div>
@@ -26,7 +27,7 @@
                 <div class="col-3 px-2">
                     <div class="d-flex flex-column py-3 rounded text-center shadow text-white"
                         style="background-color: #0D6EFD;">
-                        <span>{{ $ticket['active'] ?? 0 }}</span>
+                        <span class="counter" data-target="{{ $ticket['active'] ?? 0 }}">0</span>
                         <span class="text-nowrap">Aktif</span>
                     </div>
                 </div>
@@ -34,7 +35,7 @@
                 <!-- Solved -->
                 <div class="col-3 px-2">
                     <div class="d-flex flex-column py-3 rounded text-center shadow" style="background-color: #d8d9d9;">
-                        <span>{{ $ticket['solved'] ?? 0 }}</span>
+                        <span class="counter" data-target="{{ $ticket['solved'] ?? 0 }}">0</span>
                         <span class="text-nowrap">Selesai</span>
                     </div>
                 </div>
@@ -43,7 +44,7 @@
                 <div class="col-3 px-2">
                     <div class="d-flex flex-column py-3 rounded text-center shadow text-white"
                         style="background-color: #505051;">
-                        <span>{{ $ticket['closed'] ?? 0 }}</span>
+                        <span class="counter" data-target="{{ $ticket['closed'] ?? 0 }}">0</span>
                         <span class="text-nowrap">Tutup</span>
                     </div>
                 </div>
@@ -116,8 +117,33 @@
                         solved: @json($ticket['solved'] ?? 0),
                         closed: @json($ticket['closed'] ?? 0),
                     });
+                    generateNumberTickets();
                 });
             });
+
+            function generateNumberTickets() {
+                const counters = document.querySelectorAll('.counter');
+                const duration = 1000; // 1 detik animasi
+
+                counters.forEach(counter => {
+                    const target = parseInt(counter.dataset.target, 10);
+                    const startTime = performance.now();
+
+                    function update(currentTime) {
+                        const progress = Math.min((currentTime - startTime) / duration, 1);
+                        const current = Math.floor(progress * target);
+
+                        counter.textContent = current.toLocaleString(); // format ribuan
+
+                        if (progress < 1) {
+                            requestAnimationFrame(update);
+                        }
+                    }
+
+                    requestAnimationFrame(update);
+                });
+            }
+            generateNumberTickets();
         </script>
     @endif
 </div>
