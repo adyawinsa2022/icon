@@ -167,7 +167,7 @@
 
         document.getElementById("toggle-torch-btn").addEventListener("click", toggleTorch);
 
-        function onScanSuccess(decodedText) {
+        async function onScanSuccess(decodedText) {
             // Loading
             overlay.classList.remove("d-none");
             overlay.classList.add("d-flex");
@@ -194,7 +194,7 @@
                     try {
                         let assetUrl = "{{ url('assets-info') }}";
                         // Ambil data aset
-                        fetch(`${assetUrl}/${kode}`)
+                        await fetch(`${assetUrl}/${kode}`)
                             .then(res => res.json())
                             .then(data => {
                                 const device = data.data
