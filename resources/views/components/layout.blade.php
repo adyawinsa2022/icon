@@ -22,6 +22,9 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
+    <script>
+        const overlay = document.getElementById("loading-overlay");
+    </script>
 
 
     @if ($showNavbar)
@@ -89,7 +92,6 @@
     </script>
 
     <script>
-        const overlay = document.getElementById("loading-overlay");
         window.addEventListener('load', () => {
             overlay.classList.remove("d-flex");
             overlay.classList.add("d-none");
@@ -130,16 +132,36 @@
             overlay.classList.add("d-flex");
         });
 
-        // Tampilkan Loading saat Livewire request
         document.addEventListener('livewire:init', function() {
+            // Tampilkan Loading saat Livewire request
             Livewire.hook('commit', () => {
                 overlay.classList.remove("d-none");
                 overlay.classList.add("d-flex");
             });
+
             Livewire.hook('morphed', () => {
                 overlay.classList.remove("d-flex");
                 overlay.classList.add("d-none");
             });
+
+            // Livewire listener saat request
+            Livewire.hook('request', ({
+                fail
+            }) => {
+                // Saat request gagal/error
+                fail(({
+                    status,
+                    preventDefault
+                }) => {
+                    // Bypass jika error 500
+                    if (status === 500) {
+                        preventDefault();
+                        overlay.classList.remove("d-flex");
+                        overlay.classList.add("d-none");
+                        console.warn('Livewire request failed 500.');
+                    }
+                })
+            })
         });
     </script>
 
