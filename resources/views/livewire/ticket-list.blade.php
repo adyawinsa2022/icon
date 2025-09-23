@@ -20,16 +20,14 @@
     @if (in_array($userProfile, ['Technician', 'Super-Admin']) && !$deviceName)
         <ul class="nav nav-pills nav-pills-sm mb-3">
             <li class="nav-item">
-                <a wire:click="$set('status', 'notold')" class="nav-link {{ $status === 'notold' ? 'active' : '' }}"
-                    href="#">
+                <button wire:click="$set('status', 'notold')" class="nav-link {{ $status === 'notold' ? 'active' : '' }}">
                     Belum Selesai
-                </a>
+                </button>
             </li>
             <li class="nav-item">
-                <a wire:click="$set('status', 'all')" class="nav-link {{ $status == 'all' ? 'active' : '' }}"
-                    href="#">
+                <button wire:click="$set('status', 'all')" class="nav-link {{ $status == 'all' ? 'active' : '' }}">
                     Semua
-                </a>
+                </button>
             </li>
         </ul>
     @endif
@@ -68,10 +66,12 @@
 
     {{-- Pagination --}}
     <nav class="d-flex flex-column align-items-center">
-        <span>
-            Menampilkan {{ $tickets->firstItem() }} sampai {{ $tickets->lastItem() }} dari {{ $tickets->total() }}
-            tiket
-        </span>
+        @if (count($tickets) > 0)
+            <span>
+                Menampilkan {{ $tickets->firstItem() }} sampai {{ $tickets->lastItem() }} dari {{ $tickets->total() }}
+                tiket
+            </span>
+        @endif
         @if ($totalPages > 1)
             <ul class="pagination p-0">
                 {{-- Tombol ke halaman pertama --}}
