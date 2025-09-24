@@ -22,7 +22,6 @@ class EncyclopediaController extends Controller
 
     public function index()
     {
-
         return view('encyclopedia.index');
     }
 

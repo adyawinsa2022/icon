@@ -3,6 +3,8 @@
         <h2>404</h2>
         <h3>Halaman tidak ditemukan</h3>
         <p>Halaman atau Data yang anda cari tidak ada atau sudah dihapus</p>
-        <a href="{{ route('ticket.index') }}" class="btn btn-primary">Kembali</a>
+        <a href="{{ route('dashboard.index') }}" class="btn btn-primary">
+            <i class="bi bi-house-door"></i> Beranda
+        </a>
     </div>
 </x-layout>
