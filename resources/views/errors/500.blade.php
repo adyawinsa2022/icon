@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+    <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
         <h2>500</h2>
         <h3>Server Bermasalah</h3>
         <p>Silahkan hubungi ICT</p>

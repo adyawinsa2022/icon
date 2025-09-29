@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+    <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
         <h2>403</h2>
         <h3>Dilarang</h3>
         <p>Anda tidak memiliki akses ke halaman ini</p>
