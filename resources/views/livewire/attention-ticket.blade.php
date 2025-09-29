@@ -51,14 +51,18 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const ticketsModal = document.getElementById('ticketsModal');
+                // Ambil data dari Laravel saat pertama load
+                let tickets = @json($tickets);
+                // Perbarui Data Tiket dari Livewire
+                window.addEventListener('tickets-updated', event => {
+                    const payload = event.detail[0];
+                    tickets = payload.tickets;
+                });
 
+                const ticketsModal = document.getElementById('ticketsModal');
                 ticketsModal.addEventListener('show.bs.modal', function(event) {
                     const button = event.relatedTarget; // tombol yang diklik
                     const category = button.getAttribute('data-bs-category'); // 'active' atau 'solved'
-
-                    // Ambil data dari Livewire
-                    const tickets = @json($tickets);
 
                     const modalTitle = ticketsModal.querySelector('#ticketsModalTitle');
                     const modalBody = ticketsModal.querySelector('#ticketsModalBody');

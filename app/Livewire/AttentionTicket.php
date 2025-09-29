@@ -89,6 +89,10 @@ class AttentionTicket extends Component
                 // Simpan hasil totalcount ke dalam array
                 $this->tickets[$key] = $tickets ?? 0;
             }
+
+            $this->dispatch('tickets-updated', [
+                'tickets' => $this->tickets,
+            ]);
         }
     }
 
