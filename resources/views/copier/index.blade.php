@@ -1,6 +1,6 @@
 <x-layout :show-bottom-navbar="false">
     <div class="container pt-3">
-        <h5 class="fw-bold mb-2">Counter Fotocopy</h5>
+        <h5 class="fw-bold mb-2">Counter Fotokopi</h5>
         <span class="text-muted">Update: {{ $date }}</span>
         <div class="col-12 col-md-4 my-3">
             <input type="text" id="search" class="form-control" placeholder="Cari nama...">
@@ -9,7 +9,7 @@
             <table class="table table-bordered" id="fotocopy-table">
                 <thead>
                     <tr>
-                        <td>Name</td>
+                        <td>Nama</td>
                         <td>B/W</td>
                         <td>Color</td>
                         <td>Total</td>

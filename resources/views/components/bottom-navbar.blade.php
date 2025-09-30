@@ -13,9 +13,9 @@
             <i class="bi bi-plus-lg"></i>
         </a>
     </div>
-    <a href="{{ route('encyclopedia.index') }}" class="{{ Route::is('encyclopedia.*') ? 'active' : '' }}">
-        <i class="bi bi-lightbulb{{ Route::is('encyclopedia.*') ? '-fill' : '' }} fs-4"></i><br>
-        <small class="fw-semibold">Ensiklopedia</small>
+    <a href="{{ route('menu.index') }}" class="{{ Route::is('menu.*') ? 'active' : '' }}">
+        <i class="bi bi-grid{{ Route::is('menu.*') ? '-fill' : '' }} fs-4"></i><br>
+        <small class="fw-semibold">Menu</small>
     </a>
     <a href="{{ route('profile.index') }}" class="{{ Route::is('profile.*') ? 'active' : '' }}">
         <i class="bi bi-person{{ Route::is('profile.*') ? '-fill' : '' }} fs-4"></i><br>
