@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AssetsController;
+use App\Http\Controllers\CopierController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DocumentController;
@@ -25,6 +26,9 @@ Route::get('/document/{id}', [DocumentController::class, 'show'])->name('documen
 Route::middleware(['glpi.session'])->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
+
+    // Copier
+    Route::get('/copier', [CopierController::class, 'index'])->name('copier.index');
 
     // Encyclopedia
     Route::get('/encyclopedia', [EncyclopediaController::class, 'index'])->name('encyclopedia.index');
