@@ -70,6 +70,7 @@ class AuthController extends Controller
 
         // Ambil ID user pertama (bisa disesuaikan kalau banyak profile)
         $userId = $userData['session']['glpiID'];
+        $userGroup = $userData['session']['glpigroups'][0];
         $userName = $userData['session']['glpifriendlyname'];
 
         $userProfile = Http::withHeaders([
@@ -80,6 +81,7 @@ class AuthController extends Controller
         // 3️⃣ Simpan ke session Laravel
         Session::put('glpi_session_token', $sessionToken);
         Session::put('glpi_user_id', $userId);
+        Session::put('glpi_user_group', $userGroup);
         Session::put('glpi_user_name', $userName);
         Session::put('glpi_user_profile', $userProfile);
 

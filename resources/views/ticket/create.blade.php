@@ -8,6 +8,27 @@
             background: #fff;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
+
+        #dropdownOptions {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .dropdown-item:hover {
+            color: white;
+            background-color: #0D6EFD;
+        }
+
+        .dropdown-item.no-hover:hover {
+            color: inherit;
+            background-color: transparent;
+            pointer-events: none;
+        }
+
+        .tooltip-wide .tooltip-inner {
+            max-width: 350px;
+            white-space: normal;
+        }
     </style>
     <div class="container pt-3">
         <div class="form-card">
@@ -36,66 +57,119 @@
                     <input type="hidden" id="photo_name" name="photo_name">
                 </div>
 
-                {{-- Jika ada data Perangkat, isi Kategori dan Lokasi sesuai Perangkat --}}
-                @if ($device)
-                    {{-- Perangkat --}}
-                    <div class="mb-3">
-                        <label for="device" class="form-label">Perangkat</label>
-                        <input type="text" class="form-control" id="device" value="{{ $device['name'] ?? '-' }}"
-                            readonly>
-                        <input type="hidden" name="device_id" value="{{ $device['id'] ?? '' }}">
-                        <input type="hidden" name="device_type" value="{{ $deviceType ?? '' }}">
-                    </div>
-                    {{-- Kategori --}}
-                    <div class="mb-3">
-                        <label for="category" class="form-label">Kategori</label>
-                        <input type="text" class="form-control" id="category"
-                            value="{{ $categories['name'] ?? '-' }}" readonly>
-                        <input type="hidden" name="category_id" value="{{ $categories['id'] ?? '' }}">
-                    </div>
-                    {{-- Lokasi --}}
-                    <div class="mb-3">
-                        <label for="location" class="form-label">Lokasi</label>
-                        <input type="text" class="form-control" id="location" value="{!! html_entity_decode($locations['name'] ?? '-') !!}"
-                            readonly>
-                        <input type="hidden" name="location_id" value="{{ $locations['id'] ?? '' }}">
-                    </div>
-                @else
-                    {{-- Perangkat --}}
-                    <div class="mb-3">
-                        <label for="device" class="form-label">Perangkat (Opsional)</label>
-                        <div class="input-group">
-                            <input type="text" id="device" name="device" class="form-control"
-                                placeholder="Scan QR label aset" readonly>
-                            <button type="button" id="scanBtn" class="btn btn-outline-secondary"><i
-                                    class="bi bi-qr-code-scan"></i>
-                            </button>
-                        </div>
-                        <input type="hidden" id="device_id" name="device_id">
-                        <input type="hidden" id="device_type" name="device_type">
-                    </div>
-                    <!-- Kategori -->
-                    <div class="mb-3">
-                        <label for="category" class="form-label">Kategori</label>
-                        <select class="form-select" id="category_id" name="category_id" required>
-                            <option value="">-- Pilih Kategori --</option>
-                            @foreach ($categories as $cat)
-                                <option value="{{ $cat['id'] }}">{{ $cat['name'] ?? 'Tanpa Nama' }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                <!-- Perangkat -->
+                <div class="mb-3">
+                    <label class="form-label">Perangkat (Opsional)</label>
+                    <div class="input-group dropdown">
+                        <!-- Tombol dropdown -->
+                        <button id="device_dropdown" class="form-select text-start dropdown-button" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Tanpa Perangkat
+                        </button>
 
-                    <!-- Lokasi -->
-                    <div class="mb-3">
-                        <label for="location" class="form-label">Lokasi</label>
-                        <select class="form-select" id="location_id" name="location_id" required>
-                            <option value="">-- Pilih Lokasi --</option>
-                            @foreach ($locations as $loc)
-                                <option value="{{ $loc['id'] }}">{!! html_entity_decode($loc['name'] ?? 'Tanpa Nama') !!}</option>
-                            @endforeach
-                        </select>
+                        <ul class="dropdown-menu w-100">
+                            <div class="dropdown-options device-dropdown-options"
+                                style="max-height: 200px; overflow-y: auto;">
+                                <li>
+                                    <a class="dropdown-item" data-value="" data-type="">
+                                        Tanpa Perangkat
+                                    </a>
+                                </li>
+                                @foreach ($items as $item)
+                                    <li>
+                                        <a class="dropdown-item" data-value="{{ $item['name'] }}"
+                                            data-type="{{ $item['type'] ?? '' }}">
+                                            {{ $item['name'] }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </div>
+                            <li class="no-data-message" style="display: none;">
+                                <span class="dropdown-item no-hover">Data tidak ada</span>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li class="px-2">
+                                <input type="text" class="form-control dropdown-search"
+                                    placeholder="Cari Perangkat Saya...">
+                            </li>
+                        </ul>
+
+                        <!-- Hidden input -->
+                        <input type="hidden" name="device_id" id="device_id" class="dropdown-hidden-id">
+                        <input type="hidden" name="device_type" id="device_type" class="dropdown-hidden-type">
+
+                        <!-- Tombol QR -->
+                        <button type="button" id="scanBtn" class="btn btn-outline-primary">
+                            <i class="bi bi-qr-code-scan"></i>
+                        </button>
                     </div>
-                @endif
+                </div>
+
+                <!-- Kategori -->
+                <div class="mb-3">
+                    <label class="form-label">Kategori</label>
+                    <div class="dropdown w-100">
+                        <button id="category_dropdown" class="form-select text-start dropdown-button" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            -- Pilih Kategori --
+                        </button>
+
+                        <ul class="dropdown-menu w-100">
+                            <div class="dropdown-options category-dropdown-options"
+                                style="max-height: 200px; overflow-y: auto;">
+                                @foreach ($categories as $cat)
+                                    <li>
+                                        <a class="dropdown-item" data-value="{{ $cat['id'] }}">
+                                            {{ $cat['name'] ?? 'Tanpa Nama' }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </div>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li class="px-2">
+                                <input type="text" class="form-control dropdown-search"
+                                    placeholder="Cari Kategori...">
+                            </li>
+                        </ul>
+                        <input type="hidden" name="category_id" id="category_id" class="dropdown-hidden-id">
+                    </div>
+                </div>
+
+                <!-- Lokasi -->
+                <div class="mb-3">
+                    <label class="form-label">Lokasi</label>
+                    <div class="dropdown w-100">
+                        <button id="location_dropdown" class="form-select text-start dropdown-button" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            -- Pilih Lokasi --
+                        </button>
+
+                        <ul class="dropdown-menu w-100">
+                            <div class="dropdown-options location-dropdown-options"
+                                style="max-height: 200px; overflow-y: auto;">
+                                @foreach ($locations as $loc)
+                                    <li>
+                                        <a class="dropdown-item" data-value="{{ $loc['id'] }}">
+                                            {!! html_entity_decode($loc['name'] ?? 'Tanpa Nama') !!}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </div>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li class="px-2">
+                                <input type="text" class="form-control dropdown-search"
+                                    placeholder="Cari Lokasi...">
+                            </li>
+                        </ul>
+                        <input type="hidden" name="location_id" id="location_id" class="dropdown-hidden-id">
+                    </div>
+                </div>
 
                 <button type="submit" class="btn btn-primary w-100">Simpan</button>
             </form>
@@ -122,259 +196,478 @@
 
         <script src="{{ asset('js/html5-qrcode-2.3.8/html5-qrcode.min.js') }}"></script>
         <script>
-            let compressedBlob = null;
-            let originalFileName = null;
+            document.addEventListener('DOMContentLoaded', function() {
+                // Jika ada device dari controller (url mengandung kode aset)
+                @if (!empty($device))
+                    (async () => {
+                        // Tampilkan loading
+                        overlay.classList.remove("d-none");
+                        overlay.classList.add("d-flex");
 
-            document.getElementById('photo').addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (!file) return;
+                        const kode = "{{ $device }}";
+                        await fetchDevice(kode);
 
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
+                        overlay.classList.remove("d-flex");
+                        overlay.classList.add("d-none");
+                    })();
+                @endif
 
-                        const maxWidth = 1280;
-                        const scale = maxWidth / img.width;
-                        canvas.width = maxWidth;
-                        canvas.height = img.height * scale;
+                // ====== FILTER PENCARIAN DROPDOWN ======
+                document.querySelectorAll('.dropdown-search').forEach(searchInput => {
+                    searchInput.addEventListener('input', function() {
+                        const filter = this.value.toLowerCase();
+                        const dropdownMenu = this.closest('.dropdown-menu');
+                        const optionsContainer = dropdownMenu.querySelector('.dropdown-options');
+                        // Items yang dicari sekarang adalah <li> di dalam optionsContainer
+                        const items = optionsContainer.querySelectorAll('li');
 
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        let visibleCount = 0;
 
-                        // convert to base64 (JPEG, quality 0.7)
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                        document.getElementById('compressed_photo').value = compressedDataUrl;
-                        document.getElementById('photo_name').value = file.name;
+                        items.forEach(item => {
+                            // Ambil teks dari elemen <a> di dalam <li>
+                            const link = item.querySelector('.dropdown-item');
+                            // Pastikan elemen <a> ditemukan, terutama untuk <li> yang tidak mengandung <a>
+                            if (link) {
+                                const text = link.textContent.toLowerCase();
+                                const isVisible = text.includes(filter);
 
+                                // Tampilkan/sembunyikan <li>
+                                item.style.display = isVisible ? '' : 'none';
+
+                                // Hitung <li> yang terlihat
+                                if (isVisible) {
+                                    visibleCount++;
+                                }
+                            } else {
+                                // Jika <li> tidak punya .dropdown-item (misalnya divider atau li tanpa link), 
+                                // kita biarkan dia terlihat (atau sembunyikan sesuai kebutuhan desain lain)
+                            }
+                        });
+
+                        // Inisiasi atau Dapatkan Elemen Pesan "Data tidak ada"
+                        const noDataMessage = dropdownMenu.querySelector('.no-data-message');
+                        if (!noDataMessage) {
+                            console.log("null");
+                        } else {
+                            // Logika untuk menampilkan/menyembunyikan pesan
+                            if (visibleCount === 0) {
+                                noDataMessage.style.display = 'block'; // Tampilkan pesan <li>
+                            } else {
+                                noDataMessage.style.display = 'none'; // Sembunyikan pesan <li>
+                            }
+                        }
+
+                    });
+                });
+
+                document.querySelectorAll('.no-data-message').forEach(noDataItem => {
+                    noDataItem.addEventListener('click', function(event) {
+                        // Mencegah event klik menyebar ke atas (ke div dropdown-menu atau dropdown)
+                        // Inilah yang menghentikan dropdown dari penutupan.
+                        event.stopPropagation();
+
+                        // Opsional: Mencegah tindakan default, meskipun pada <li>/<span> ini biasanya tidak ada.
+                        event.preventDefault();
+                    });
+                });
+
+                //  Reset search input ketika dropdown ditutup
+                document.querySelectorAll('.dropdown').forEach(dropdown => {
+                    dropdown.addEventListener('hide.bs.dropdown', function() {
+                        const searchInput = this.querySelector('.dropdown-search');
+                        if (searchInput) {
+                            searchInput.value = ''; // kosongkan input
+
+                            // Reset semua item agar tampil lagi
+                            const optionsContainer = this.querySelector('.dropdown-options');
+                            const items = optionsContainer.querySelectorAll('li');
+                            items.forEach(item => {
+                                item.style.display = ''; // tampilkan semua kembali
+                            });
+                        }
+
+                        const noDataMessage = this.querySelector('.no-data-message');
+                        if (noDataMessage) {
+                            noDataMessage.style.display = 'none'; // Sembunyikan pesan <li>
+                        }
+                    });
+                });
+
+                // const deviceDropdownBtn = document.getElementById('device_dropdown');
+                const deviceButton = document.getElementById('device_dropdown');
+                const deviceDropdown = document.querySelector('.device-dropdown-options');
+                let deviceTooltip = null;
+
+                deviceButton.addEventListener('show.bs.dropdown', function() {
+                    // Buat tooltip dinamis
+                    // deviceDropdown.style.setProperty('--bs-tooltip-max-width', '350px');
+                    // deviceDropdown.style.setProperty('white-space', 'normal');
+                    deviceTooltip = new bootstrap.Tooltip(deviceDropdown, {
+                        title: 'Jika tidak ada Perangkat Anda di bawah, hubungi ICT',
+                        trigger: 'manual',
+                        customClass: 'tooltip-wide'
+                    });
+                    deviceTooltip.show();
+                });
+
+                deviceButton.addEventListener('hide.bs.dropdown', function() {
+                    // Sembunyikan dan destroy tooltip saat dropdown ditutup
+                    if (deviceTooltip) {
+                        deviceTooltip.dispose();
+                        deviceTooltip = null;
+                    }
+                });
+
+
+                // ====== PILIH ITEM DROPDOWN ======
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    menu.addEventListener('click', function(e) {
+                        const target = e.target.closest('.dropdown-item');
+                        if (!target) return;
+
+                        e.preventDefault();
+
+                        const dropdown = this.closest('.dropdown');
+                        const button = dropdown.querySelector('.dropdown-button');
+                        const hiddenId = dropdown.querySelector('.dropdown-hidden-id');
+                        const hiddenType = dropdown.querySelector('.dropdown-hidden-type');
+
+                        // Hapus active dari semua item
+                        this.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove(
+                            'active'));
+
+                        // Tandai yang dipilih
+                        target.classList.add('active');
+
+                        // Update tombol teks
+                        button.textContent = target.textContent;
+
+                        // Simpan value ke hidden input
+                        hiddenId.value = target.dataset.value;
+
+                        // Jika ada type, simpan juga
+                        if (hiddenType) {
+                            hiddenType.value = target.dataset.type || '';
+                        }
+                    });
+                });
+
+                // Elemen tombol dan hidden input
+                const deviceIdInput = document.getElementById('device_id');
+                const deviceTypeInput = document.getElementById('device_type');
+
+                const categoryButton = document.getElementById('category_dropdown');
+                const categoryIdInput = document.getElementById('category_id');
+
+                const locationButton = document.getElementById('location_dropdown');
+                const locationIdInput = document.getElementById('location_id');
+
+                // Handle ketika klik pada item perangkat
+                document.querySelectorAll('.device-dropdown-options .dropdown-item').forEach(item => {
+                    item.addEventListener('click', async function() {
+                        const kode = this.dataset.value; // Ambil kode perangkat
+
+                        // Tampilkan loading
+                        overlay.classList.remove("d-none");
+                        overlay.classList.add("d-flex");
+
+                        if (kode) {
+                            // Fetch data perangkat
+                            await fetchDevice(kode);
+                        } else {
+                            locationButton.classList.remove('form-control');
+                            locationButton.classList.add('form-select');
+                            locationButton.classList.remove('disabled');
+                            locationButton.style.pointerEvents = 'auto';
+                            categoryButton.classList.remove('form-control');
+                            categoryButton.classList.add('form-select');
+                            categoryButton.classList.remove('disabled');
+                            categoryButton.style.pointerEvents = 'auto';
+
+                        }
+
+                        // Sembunyikan loading
+                        overlay.classList.remove("d-flex");
+                        overlay.classList.add("d-none");
+                    });
+                });
+
+                // Fungsi untuk mencari teks berdasarkan ID dari dropdown
+                function findDropdownText(containerId, id) {
+                    const el = document.querySelector(`.${containerId} .dropdown-item[data-value="${id}"]`);
+                    return el ? el.textContent.trim() : "Tanpa Nama";
+                }
+
+                // Variabel untuk compress foto
+                let compressedBlob = null;
+                let originalFileName = null;
+
+                document.getElementById('photo').addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+
+                            const maxWidth = 1280;
+                            const scale = maxWidth / img.width;
+                            canvas.width = maxWidth;
+                            canvas.height = img.height * scale;
+
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                            // convert to base64 (JPEG, quality 0.7)
+                            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                            document.getElementById('compressed_photo').value = compressedDataUrl;
+                            document.getElementById('photo_name').value = file.name;
+
+                        };
+                        img.src = e.target.result;
                     };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
+                    reader.readAsDataURL(file);
+                });
 
-            const html5QrCode = new Html5Qrcode("reader");
-            const scanButton = document.getElementById('scanBtn');
-            const cameraSelect = document.getElementById('cameraSelect');
-            let currentCameraId = null;
-            let torchOn = false;
-            let videoTrack = null;
+                // Variabel untuk QR code
+                const html5QrCode = new Html5Qrcode("reader");
+                const scanButton = document.getElementById('scanBtn');
+                const cameraSelect = document.getElementById('cameraSelect');
+                let currentCameraId = null;
+                let torchOn = false;
+                let videoTrack = null;
 
-            if (scanButton) {
-                scanButton.addEventListener('click', async function() {
+                if (scanButton) {
+                    scanButton.addEventListener('click', async function() {
+                        // Loading
+                        overlay.classList.remove("d-none");
+                        overlay.classList.add("d-flex");
+
+                        try {
+                            // Minta akses kamera untuk dapat label
+                            const stream = await navigator.mediaDevices.getUserMedia({
+                                video: true
+                            });
+                            stream.getTracks().forEach(track => track.stop());
+
+                            const devices = await Html5Qrcode.getCameras();
+
+                            if (devices.length === 0) {
+                                alert("Tidak ada kamera ditemukan!");
+                                return;
+                            }
+
+                            // Tampilkan Modal
+                            const modal = new bootstrap.Modal(document.getElementById('scannerModal'));
+                            modal.show();
+
+                            // Tampilkan kamera select selalu
+                            cameraSelect.classList.remove("d-none");
+                            cameraSelect.innerHTML = '';
+
+                            devices.forEach(device => {
+                                const option = document.createElement("option");
+                                option.value = device.id;
+                                option.textContent = device.label || `Kamera ${device.id}`;
+                                cameraSelect.appendChild(option);
+                            });
+
+                            // Cari kamera belakang dan set sebagai default
+                            let backCamera = devices.find(d => /back|rear/i.test(d.label) && !
+                                /wide|obs|virtual/i.test(d
+                                    .label));
+                            if (!backCamera) backCamera = devices.find(d => /back|rear/i.test(d.label));
+                            if (!backCamera) backCamera = devices.find(d => !/obs|virtual/i.test(d.label));
+
+                            const defaultCameraId = backCamera ? backCamera.id : devices[0].id;
+
+                            cameraSelect.value = defaultCameraId;
+                            startScanner(defaultCameraId);
+
+                        } catch (err) {
+                            console.error("Kamera gagal diakses:", err);
+                            alert("Tidak bisa mengakses kamera.");
+                        } finally {
+                            overlay.classList.add("d-none");
+                            overlay.classList.remove("d-flex");
+                        }
+
+                        // Ubah kamera dari Dropdown
+                        cameraSelect.addEventListener("change", async function(e) {
+                            const newCameraId = e.target.value;
+                            if (newCameraId && newCameraId !== currentCameraId) {
+                                await startScanner(newCameraId);
+                            }
+                        });
+
+                        // Stop scanner saat modal ditutup
+                        document.getElementById('scannerModal').addEventListener('hidden.bs.modal',
+                            function() {
+                                html5QrCode.stop().then(() => {
+                                    console.log("QR scanner stopped.");
+                                    html5QrCode.clear(); // optional: bersihkan tampilan canvas
+                                }).catch(err => {
+                                    console.error("Stop failed:", err);
+                                });
+                            });
+                    });
+                }
+
+                async function startScanner(cameraId) {
+                    try {
+                        if (html5QrCode.getState() === Html5QrcodeScannerState.SCANNING && currentCameraId !==
+                            cameraId) {
+                            await html5QrCode.stop();
+                            await html5QrCode.clear();
+                        }
+
+                        currentCameraId = cameraId;
+
+                        await html5QrCode.start(cameraId, {
+                            fps: 10,
+                            qrbox: 250
+                        }, onScanSuccess);
+
+                        // Ambil video track
+                        const videoElem = document.querySelector("#reader video");
+                        if (videoElem && videoElem.srcObject) {
+                            const tracks = videoElem.srcObject.getVideoTracks();
+                            if (tracks.length > 0) {
+                                videoTrack = tracks[0];
+                                document.getElementById("torch-status").textContent = "";
+                                torchOn = false; // reset status torch saat start
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Gagal memulai kamera: ", err);
+                        alert("Gagal memulai kamera: " + err.message);
+                    }
+                }
+
+                async function toggleTorch() {
+                    const statusEl = document.getElementById("torch-status");
+                    const torchIcon = document.getElementById("torch-icon");
+                    if (!videoTrack) {
+                        alert("Video track belum tersedia. Mulai scanner dulu.");
+                        return;
+                    }
+
+                    const capabilities = videoTrack.getCapabilities();
+                    if (!capabilities.torch) {
+                        statusEl.textContent = "Senter tidak didukung oleh kamera ini.";
+                        return;
+                    }
+
+                    try {
+                        await videoTrack.applyConstraints({
+                            advanced: [{
+                                torch: !torchOn
+                            }]
+                        });
+                        torchOn = !torchOn;
+                        torchIcon.classList.toggle("bi-lightbulb-fill");
+                        torchIcon.classList.toggle("bi-lightbulb");
+                    } catch (e) {
+                        statusEl.textContent = "Gagal mengubah status Senter: " + e.message;
+                    }
+                }
+
+                document.getElementById("toggle-torch-btn").addEventListener("click", toggleTorch);
+
+                async function onScanSuccess(decodedText) {
                     // Loading
                     overlay.classList.remove("d-none");
                     overlay.classList.add("d-flex");
 
-                    try {
-                        // Minta akses kamera untuk dapat label
-                        const stream = await navigator.mediaDevices.getUserMedia({
-                            video: true
-                        });
-                        stream.getTracks().forEach(track => track.stop());
+                    // Cari semua URL dengan domain adyawinsa.com
+                    const linkRegex = /https?:\/\/(?:[\w\-]+\.)*adyawinsa\.com\/[^\s]+/gi;
+                    const linkMatches = decodedText.match(linkRegex);
 
-                        const devices = await Html5Qrcode.getCameras();
+                    // let domainUrl = window.location.origin;
+                    if (linkMatches && linkMatches.length > 0) {
+                        const lastUrl = linkMatches[linkMatches.length - 1]; // Ambil url yang terakhir
+                        const kodeRegex = /(?:asset\/index\.php\?id=|assets\/)([^"\s/]+)/i;
+                        const kodeMatches = lastUrl.match(kodeRegex);
 
-                        if (devices.length === 0) {
-                            alert("Tidak ada kamera ditemukan!");
-                            return;
-                        }
+                        if (kodeMatches && kodeMatches.length > 0) {
+                            const kode = kodeMatches[1];
 
-                        // Tampilkan Modal
-                        const modal = new bootstrap.Modal(document.getElementById('scannerModal'));
-                        modal.show();
+                            // ✅ Hentikan kamera setelah scan
+                            html5QrCode.stop().then(() => console.log("Camera stopped."));
 
-                        // Tampilkan kamera select selalu
-                        cameraSelect.classList.remove("d-none");
-                        cameraSelect.innerHTML = '';
+                            // ✅ Tutup modal
+                            const modalElement = document.getElementById('scannerModal');
+                            bootstrap.Modal.getInstance(modalElement).hide();
 
-                        devices.forEach(device => {
-                            const option = document.createElement("option");
-                            option.value = device.id;
-                            option.textContent = device.label || `Kamera ${device.id}`;
-                            cameraSelect.appendChild(option);
-                        });
+                            // Fetch data perangkat
+                            await fetchDevice(kode);
 
-                        // Cari kamera belakang dan set sebagai default
-                        let backCamera = devices.find(d => /back|rear/i.test(d.label) && !/wide|obs|virtual/i.test(d
-                            .label));
-                        if (!backCamera) backCamera = devices.find(d => /back|rear/i.test(d.label));
-                        if (!backCamera) backCamera = devices.find(d => !/obs|virtual/i.test(d.label));
-
-                        const defaultCameraId = backCamera ? backCamera.id : devices[0].id;
-
-                        cameraSelect.value = defaultCameraId;
-                        startScanner(defaultCameraId);
-
-                    } catch (err) {
-                        console.error("Kamera gagal diakses:", err);
-                        alert("Tidak bisa mengakses kamera.");
-                    } finally {
-                        overlay.classList.add("d-none");
-                        overlay.classList.remove("d-flex");
-                    }
-
-                    // Ubah kamera dari Dropdown
-                    cameraSelect.addEventListener("change", async function(e) {
-                        const newCameraId = e.target.value;
-                        if (newCameraId && newCameraId !== currentCameraId) {
-                            await startScanner(newCameraId);
-                        }
-                    });
-
-                    // Stop scanner saat modal ditutup
-                    document.getElementById('scannerModal').addEventListener('hidden.bs.modal', function() {
-                        html5QrCode.stop().then(() => {
-                            console.log("QR scanner stopped.");
-                            html5QrCode.clear(); // optional: bersihkan tampilan canvas
-                        }).catch(err => {
-                            console.error("Stop failed:", err);
-                        });
-                    });
-                });
-            }
-
-            async function startScanner(cameraId) {
-                try {
-                    if (html5QrCode.getState() === Html5QrcodeScannerState.SCANNING && currentCameraId !== cameraId) {
-                        await html5QrCode.stop();
-                        await html5QrCode.clear();
-                    }
-
-                    currentCameraId = cameraId;
-
-                    await html5QrCode.start(cameraId, {
-                        fps: 10,
-                        qrbox: 250
-                    }, onScanSuccess);
-
-                    // Ambil video track
-                    const videoElem = document.querySelector("#reader video");
-                    if (videoElem && videoElem.srcObject) {
-                        const tracks = videoElem.srcObject.getVideoTracks();
-                        if (tracks.length > 0) {
-                            videoTrack = tracks[0];
-                            document.getElementById("torch-status").textContent = "";
-                            torchOn = false; // reset status torch saat start
-                        }
-                    }
-                } catch (err) {
-                    console.error("Gagal memulai kamera: ", err);
-                    alert("Gagal memulai kamera: " + err.message);
-                }
-            }
-
-            async function toggleTorch() {
-                const statusEl = document.getElementById("torch-status");
-                const torchIcon = document.getElementById("torch-icon");
-                if (!videoTrack) {
-                    alert("Video track belum tersedia. Mulai scanner dulu.");
-                    return;
-                }
-
-                const capabilities = videoTrack.getCapabilities();
-                if (!capabilities.torch) {
-                    statusEl.textContent = "Senter tidak didukung oleh kamera ini.";
-                    return;
-                }
-
-                try {
-                    await videoTrack.applyConstraints({
-                        advanced: [{
-                            torch: !torchOn
-                        }]
-                    });
-                    torchOn = !torchOn;
-                    torchIcon.classList.toggle("bi-lightbulb-fill");
-                    torchIcon.classList.toggle("bi-lightbulb");
-                } catch (e) {
-                    statusEl.textContent = "Gagal mengubah status Senter: " + e.message;
-                }
-            }
-
-            document.getElementById("toggle-torch-btn").addEventListener("click", toggleTorch);
-
-            function onScanSuccess(decodedText) {
-                // Loading
-                overlay.classList.remove("d-none");
-                overlay.classList.add("d-flex");
-
-                console.log("QR Code:", decodedText);
-                // alert(decodedText);
-
-                // Cari semua URL dengan domain adyawinsa.com
-                const linkRegex = /https?:\/\/(?:[\w\-]+\.)*adyawinsa\.com\/[^\s]+/gi;
-                const linkMatches = decodedText.match(linkRegex);
-
-                // let domainUrl = window.location.origin;
-                if (linkMatches && linkMatches.length > 0) {
-                    const lastUrl = linkMatches[linkMatches.length - 1]; // Ambil url yang terakhir
-                    const kodeRegex = /(?:asset\/index\.php\?id=|assets\/)([^"\s/]+)/i;
-                    const kodeMatches = lastUrl.match(kodeRegex);
-
-                    if (kodeMatches && kodeMatches.length > 0) {
-                        const kode = kodeMatches[1];
-
-                        // ✅ Hentikan kamera setelah scan
-                        html5QrCode.stop().then(() => console.log("Camera stopped."));
-
-                        // ✅ Tutup modal
-                        const modalElement = document.getElementById('scannerModal');
-                        bootstrap.Modal.getInstance(modalElement).hide();
-
-                        try {
-                            // ✅ Fetch data perangkat
-                            let assetUrl = "{{ url('assets-info') }}";
-                            fetch(`${assetUrl}/${kode}`)
-                                .then(res => res.json())
-                                .then(data => {
-                                    const device = data.data
-                                    if (data.status === "success") {
-                                        console.log(device);
-                                        document.getElementById("device_id").value = device.id;
-                                        // document.getElementById("device_type").value = type;
-                                        document.getElementById("device").value = device.name;
-                                        if (scanButton) {
-                                            scanButton.classList.add("d-none");
-                                        }
-                                        if (device.locations_id) {
-                                            document.querySelector('select[name="location_id"]').value = device
-                                                .locations_id;
-                                            document.getElementById("location_id").style.pointerEvents = "none";
-                                            document.getElementById("location_id").classList.remove("form-select");
-                                            document.getElementById("location_id").classList.add("form-control");
-                                        }
-
-                                        // Isi kategori default sesuai tipe
-                                        document.querySelector('select[name="category_id"]').value = device.itilcategoryid;
-                                        document.getElementById("category_id").style.pointerEvents = "none";
-                                        document.getElementById("category_id").classList.remove("form-select");
-                                        document.getElementById("category_id").classList.add("form-control");
-
-                                    } else if (data.status === "error") {
-                                        alert("Error: " + data.message + ` (${kode})`);
-                                    }
-                                })
-                                .catch(err => {
-                                    console.error("Fetch error:", err);
-                                    alert("Fetch error: " + (err.message || JSON.stringify(err)));
-                                });
-                        } catch (e) {
-                            console.warn("Error Fetch Asset: ", e);
-                            alert("Error Tarik Data: " + e.message);
+                        } else {
+                            alert("QR code tidak valid!");
                         }
                     } else {
                         alert("QR code tidak valid!");
                     }
-                } else {
-                    alert("QR code tidak valid!");
+
+                    // Stop Loading
+                    overlay.classList.remove("d-flex");
+                    overlay.classList.add("d-none");
                 }
 
-                // Stop Loading
-                overlay.classList.remove("d-flex");
-                overlay.classList.add("d-none");
-            }
+                async function fetchDevice(kode) {
+                    try {
+                        const assetUrl = "{{ url('assets-info') }}";
+                        const response = await fetch(`${assetUrl}/${kode}`);
+                        const data = await response.json();
+
+                        if (data.status === "success") {
+                            const device = data.data;
+
+                            // Tampilkan nama perangkat di tombol
+                            deviceButton.textContent = device.name;
+
+                            // Set hidden input
+                            deviceIdInput.value = device.id;
+                            deviceTypeInput.value = device.type;
+
+                            // Lokasi
+                            if (device.locations_id) {
+                                const locationName = findDropdownText(
+                                    'location-dropdown-options', device.locations_id);
+                                locationButton.textContent = locationName;
+                                locationIdInput.value = device.locations_id;
+
+                                // Disable lokasi agar tidak bisa dipilih manual
+                                locationButton.classList.remove('form-select');
+                                locationButton.classList.add('form-control');
+                                locationButton.classList.add('disabled');
+                                locationButton.style.pointerEvents = 'none';
+                            }
+
+                            // Kategori
+                            if (device.itilcategoryid) {
+                                const categoryName = findDropdownText(
+                                    'category-dropdown-options', device.itilcategoryid);
+                                categoryButton.textContent = categoryName;
+                                categoryIdInput.value = device.itilcategoryid;
+
+                                // Disable kategori agar tidak bisa dipilih manual
+                                categoryButton.classList.remove('form-select');
+                                categoryButton.classList.add('form-control');
+                                categoryButton.classList.add('disabled');
+                                categoryButton.style.pointerEvents = 'none';
+                            }
+                        } else {
+                            alert("Error: " + data.message + ` (${kode})`);
+                        }
+                    } catch (err) {
+                        console.error("Fetch error:", err);
+                        alert("Fetch error: " + (err.message || JSON.stringify(err)));
+                    }
+                }
+            });
         </script>
     </div>
 </x-layout>

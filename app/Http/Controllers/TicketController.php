@@ -49,60 +49,57 @@ class TicketController extends Controller
      *************************************************/
     public function create($deviceName = null)
     {
-        $device = null;
+        $device = $deviceName ?? null;
         $sessionToken = Session::get('glpi_session_token');
+        $userId = Session::get('glpi_user_id');
+        $userGroup = Session::get('glpi_user_group');
 
-        // Ambil perangkat jika ada
-        if ($deviceName) {
-            // Cari di GLPI langsung
-            $foundDevice = $this->apiHelper->getIdByNameSearch(null, $deviceName);
-            if (empty($foundDevice)) {
-                abort(404);
-            }
-            $foundDeviceId = $foundDevice['id'];
-            $foundDeviceType = $foundDevice['type'];
+        $params = [
+            'criteria[0][field]' => 71, // 70 User Id, 71 Group
+            'criteria[0][searchtype]' => 'equals',
+            'criteria[0][value]' => $userGroup,
+        ];
+        // Build Parameter
+        $query = http_build_query($params);
+        $url = rtrim($this->glpiApiUrl, '/') . '/search/AllAssets?' . $query;
 
-            $deviceResponse = Http::withHeaders([
-                'App-Token' => $this->appToken,
-                'Session-Token' => $sessionToken,
-            ])->get($this->glpiApiUrl . "/$foundDeviceType/$foundDeviceId");
+        $itemsResponse = Http::withHeaders([
+            'App-Token' => $this->appToken,
+            'Session-Token' => $sessionToken,
+        ])->get($url);
 
-            $device = $deviceResponse->successful() ? $deviceResponse->json() : null;
+        $items = $itemsResponse->successful() ? $itemsResponse->json()['data'] : [];
+        $items = collect($items)->map(function ($ticket) {
+            return [
+                'id' => $ticket['2'] ?? null,
+                'name' => $ticket['1'] ?? null,
+            ];
+        })->values();
 
-            // Remap ITIL Category bedasarkan tipe Perangkat
-            if ($foundDeviceType === 'Monitor') {
-                $itilCategory = 'Hardware';
-            } else {
-                $itilCategory = $foundDeviceType;
-            }
+        // Ambil kategori untuk dropdown
+        $categoriesResponse = Http::withHeaders([
+            'App-Token' => $this->appToken,
+            'Session-Token' => $sessionToken,
+        ])->get($this->glpiApiUrl . '/ITILCategory');
 
-            $category = $this->apiHelper->getIdByNameSearch('ITILCategory', $itilCategory);
-            $categories = $this->apiHelper->getResource('ITILCategory', $category['id'], $sessionToken);
-            $locations = $this->apiHelper->getResource('Location', $device['locations_id'], $sessionToken);
-        } else {
-            // Ambil kategori untuk dropdown
-            $categoriesResponse = Http::withHeaders([
-                'App-Token' => $this->appToken,
-                'Session-Token' => $sessionToken,
-            ])->get($this->glpiApiUrl . '/ITILCategory');
+        $categories = $categoriesResponse->successful() ? $categoriesResponse->json() : [];
 
-            $categories = $categoriesResponse->successful() ? $categoriesResponse->json() : [];
+        // Ambil lokasi untuk dropdown
+        $locationsResponse = Http::withHeaders([
+            'App-Token' => $this->appToken,
+            'Session-Token' => $sessionToken,
+        ])->get($this->glpiApiUrl . '/Location', [
+            'range' => '0-100'
+        ]);
 
-            // Ambil lokasi untuk dropdown
-            $locationsResponse = Http::withHeaders([
-                'App-Token' => $this->appToken,
-                'Session-Token' => $sessionToken,
-            ])->get($this->glpiApiUrl . '/Location', [
-                'range' => '0-100'
-            ]);
-
-            $locations = $locationsResponse->successful() ? $locationsResponse->json() : [];
-        }
+        $locations = $locationsResponse->successful() ? $locationsResponse->json() : [];
+        // }
 
         return view(
             'ticket.create',
             compact(
                 'device',
+                'items',
                 'categories',
                 'locations',
             )
@@ -224,19 +221,14 @@ class TicketController extends Controller
         }
 
         // 2.2 Jika ada perangkat, tambahkan ke tiket melalui /Item_Ticket
-        if ($ticketId && $request->filled('device_id') && $request->filled('category_id')) {
-            $ticketType = Http::withHeaders([
-                'App-Token' => $this->appToken,
-                'Session-Token' => $sessionToken,
-            ])->get($this->glpiApiUrl . "/ITILCategory/$request->category_id")->json()['name'];
-
+        if ($ticketId && $request->filled('device_id')) {
             Http::withHeaders([
                 'App-Token' => $this->appToken,
                 'Session-Token' => $sessionToken,
             ])->post($this->glpiApiUrl . '/Item_Ticket', [
                 'input' => [
                     'items_id' => (int) $request->device_id,
-                    'itemtype' => $ticketType, // Computer / Printer
+                    'itemtype' => $request->device_type,
                     'tickets_id' => $ticketId,
                 ]
             ]);

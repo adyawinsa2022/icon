@@ -37,6 +37,8 @@ class AssetsController extends Controller
             } else if (method_exists($this, $deviceType)) {
                 // memanggil function dengan nama sesuai param $type
                 return $this->$deviceType($deviceId);
+            } else {
+                return $this->general($deviceId, $deviceType);
             }
         }
         abort(404);
@@ -333,12 +335,22 @@ class AssetsController extends Controller
             'Session-Token' => $sessionToken,
         ])->get($this->glpiApiUrl . "/$deviceType/$deviceId");
         $data = $response->json();
+        $data = array_merge($data, ['type' => $deviceType]);
+
+        // Ambil kategori untuk dropdown
+        $categoriesResponse = Http::withHeaders([
+            'App-Token' => $this->appToken,
+            'Session-Token' => $sessionToken,
+        ])->get($this->glpiApiUrl . '/ITILCategory');
+
+        $itilCategories = $categoriesResponse->successful() ? $categoriesResponse->json() : [];
+        $categoryNames = array_column($itilCategories, 'name');
 
         // Remap ITIL Category bedasarkan tipe Perangkat
-        if ($deviceType === 'Monitor') {
-            $itilCategory = 'Hardware';
-        } else {
+        if (in_array($deviceType, $categoryNames)) {
             $itilCategory = $deviceType;
+        } else {
+            $itilCategory = 'Hardware';
         }
 
         $category = $this->apiHelper->getIdByNameSearch('ITILCategory', $itilCategory);
