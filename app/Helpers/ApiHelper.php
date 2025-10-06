@@ -119,8 +119,6 @@ class ApiHelper
             4 => 'Tunda',
             5 => 'Selesai',
             6 => 'Tutup',
-            7 => 'Diterima',
-            8 => 'Dibatalkan'
         ];
         return $status[$id] ?? 'Unknown';
     }
