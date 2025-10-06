@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Carbon\Carbon;
 use Livewire\Component;
 use App\Helpers\ApiHelper;
 use Livewire\Attributes\On;
@@ -123,19 +124,30 @@ class TicketList extends Component
             // Jika tidak ada perangkat, ambil semua tiket
             if (in_array($userProfile, ['Technician', 'Super-Admin'])) {
                 $title = ($this->status == 'notold') ? 'Tiket Belum Selesai' : 'Semua Tiket';
-                $params = [
-                    'criteria[0][field]' => 12,
-                    'criteria[0][searchtype]' => 'equals',
-                    'criteria[0][value]' => "$this->status",
-                    'sort[0]' => 19,
-                    'order[0]' => 'DESC',
-                ];
+                $params =
+                    ($this->status == 'notold') ?
+                    [
+                        'criteria[0][field]' => 12, // 12 = Status Tiket
+                        'criteria[0][searchtype]' => 'equals',
+                        'criteria[0][value]' => "$this->status",
+                        'sort[0]' => 19, // 19 = Last Update
+                        'order[0]' => 'DESC',
+                    ] :
+                    [
+                        'criteria[0][field]' => 12, // 12 = Status Tiket
+                        'criteria[0][searchtype]' => 'equals',
+                        'criteria[0][value]' => "$this->status",
+                        'sort[0]' => 15, // 15 = Opening Date
+                        'order[0]' => 'DESC',
+                    ];
             } else {
                 $title = 'Tiket Saya';
                 $params = [
                     'criteria[0][field]' => 4,
                     'criteria[0][searchtype]' => 'equals',
                     'criteria[0][value]' => $userId,
+                    'sort[0]' => 19, // 19 = Last Update
+                    'order[0]' => 'DESC',
                 ];
             }
 
@@ -162,17 +174,33 @@ class TicketList extends Component
 
         // Remap raw key dari GLPI ke readable key
         $tickets = $tickets->map(function ($ticket) use ($apiHelper) {
+
+            $dateMod = $ticket['19'] ?? null;
+            $isStale = false;
+
+            if ($dateMod) {
+                // 1. Parsing tanggal terakhir update menggunakan Carbon
+                $lastUpdate = Carbon::parse($dateMod);
+
+                // 2. Hitung selisih hari/jam dari sekarang
+                // Kita gunakan diffInDays() untuk akurasi 2 hari penuh
+                $daysSinceLastUpdate = $lastUpdate->diffInDays(Carbon::now());
+
+                // 3. Tentukan status 'is_stale'
+                // TRUE jika selisihnya >= 2 hari
+                $isStale = ($daysSinceLastUpdate >= 3);
+            }
+
             return [
                 'id' => $ticket['2'] ?? null,
                 'name' => $ticket['1'] ?? null,
                 'requester_id' => $ticket['4'] ?? null,
                 'status' => $apiHelper->getStatusName($ticket['12'] ?? 0),
-                'date_mod' => $ticket['19'] ?? null,
+                'date_mod' => $dateMod,
+                'is_stale' => $isStale,
+                'days_unmodified' => $daysSinceLastUpdate ?? 0,
             ];
         })->values();
-
-        // Sort Last Update ke terbaru
-        $tickets = $tickets->sortByDesc('date_mod')->values();
 
         $currentDateMods = $tickets->pluck('date_mod', 'id')->toArray();
 
