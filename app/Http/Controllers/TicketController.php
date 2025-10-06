@@ -55,9 +55,9 @@ class TicketController extends Controller
         $userGroup = Session::get('glpi_user_group');
 
         $params = [
-            'criteria[0][field]' => 71, // 70 User Id, 71 Group
+            'criteria[0][field]' => 70, // 70 User Id, 71 Group
             'criteria[0][searchtype]' => 'equals',
-            'criteria[0][value]' => $userGroup,
+            'criteria[0][value]' => $userId,
         ];
         // Build Parameter
         $query = http_build_query($params);
