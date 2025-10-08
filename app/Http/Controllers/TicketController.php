@@ -68,7 +68,7 @@ class TicketController extends Controller
             'Session-Token' => $sessionToken,
         ])->get($url);
 
-        $items = $itemsResponse->successful() ? $itemsResponse->json()['data'] : [];
+        $items = $itemsResponse->successful() ? $itemsResponse->json()['data'] ?? null : [];
         $items = collect($items)->map(function ($ticket) {
             return [
                 'id' => $ticket['2'] ?? null,
