@@ -183,12 +183,12 @@ class TicketList extends Component
                 $lastUpdate = Carbon::parse($dateMod);
 
                 // 2. Hitung selisih hari/jam dari sekarang
-                // Kita gunakan diffInDays() untuk akurasi 2 hari penuh
+                // Kita gunakan diffInDays() untuk hitung selisih hari
                 $daysSinceLastUpdate = $lastUpdate->diffInDays(Carbon::now());
 
                 // 3. Tentukan status 'is_stale'
-                // TRUE jika selisihnya >= 2 hari
-                $isStale = ($daysSinceLastUpdate >= 3);
+                // TRUE jika selisihnya >= x hari
+                $isStale = ($daysSinceLastUpdate >= 5);
             }
 
             return [
