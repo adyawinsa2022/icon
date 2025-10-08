@@ -70,7 +70,7 @@ class AuthController extends Controller
 
         // Ambil ID user pertama (bisa disesuaikan kalau banyak profile)
         $userId = $userData['session']['glpiID'];
-        $userGroup = $userData['session']['glpigroups'][0];
+        $userGroup = $userData['session']['glpigroups'][0] ?? 0;
         $userName = $userData['session']['glpifriendlyname'];
 
         $userProfile = Http::withHeaders([
