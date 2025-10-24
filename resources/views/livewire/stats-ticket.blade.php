@@ -1,6 +1,17 @@
 <div wire:poll.30s="getStatsTicket">
     <h5 class="fw-bold mb-2">Statistik Tiket</h5>
     <div class="card mb-3 shadow-sm">
+        <div class="col-12 col-md-4 p-2 d-flex flex-row gap-2">
+            <select wire:model.live="range" id="range" class="form-select">
+                <option value="day">Hari</option>
+                <option value="week">Minggu</option>
+                <option value="month">Bulan</option>
+                <option value="all">Semua</option>
+            </select>
+
+            <input id="rangeValue" type={{ $range == 'day' ? 'date' : $range }} wire:model.live="value"
+                class="form-control {{ $range == 'all' ? 'd-none' : '' }}">
+        </div>
         <div class="card-body">
             @if ($ticket['total'] > 0)
                 <div class="row d-flex flex-column justify-content-center align-items-center mb-3">
@@ -50,7 +61,7 @@
                 </div>
             </div>
             <div class="text-center">
-                <a href="{{ route('ticket.index') }}">Lihat Tiket <i class="bi bi-arrow-right"></i></a>
+                <a href="{{ route('ticket.index') }}">Lihat Semua <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
     </div>
@@ -60,7 +71,9 @@
             let ticketChart = null;
 
             function createChart(dataTicket) {
-                const ctx = document.getElementById('ticketPieChart').getContext('2d');
+                const canvas = document.getElementById('ticketPieChart');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
 
                 if (ticketChart) {
                     ticketChart.destroy();
@@ -104,18 +117,31 @@
                 });
             }
 
+            let tickets = @json($ticket);
             createChart({
-                active: @json($ticket['active'] ?? 0),
-                solved: @json($ticket['solved'] ?? 0),
-                closed: @json($ticket['closed'] ?? 0),
+                active: tickets['active'] ?? 0,
+                solved: tickets['solved'] ?? 0,
+                closed: tickets['closed'] ?? 0,
             });
 
-            document.addEventListener('livewire:init', function() {
+            document.addEventListener('livewire:initialized', function() {
+                Livewire.on('ticketUpdated', data => {
+                    tickets = data.ticket;
+                });
+
+                Livewire.on('rangeChanged', range => {
+                    const input = document.getElementById('rangeValue');
+                    if (input) {
+                        const inputType = range.value === 'day' ? 'date' : range.value;
+                        input.type = inputType;
+                    }
+                });
+
                 Livewire.hook('morphed', () => {
                     createChart({
-                        active: @json($ticket['active'] ?? 0),
-                        solved: @json($ticket['solved'] ?? 0),
-                        closed: @json($ticket['closed'] ?? 0),
+                        active: tickets['active'] ?? 0,
+                        solved: tickets['solved'] ?? 0,
+                        closed: tickets['closed'] ?? 0,
                     });
                     generateNumberTickets();
                 });
