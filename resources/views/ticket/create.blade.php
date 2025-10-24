@@ -33,6 +33,9 @@
     <div class="container pt-3">
         <div class="form-card">
             <h3 class="text-center mb-4">Buat Tiket</h3>
+            @if ($device)
+            <input type="hidden" id="device-url" value="{{ $device }}">
+            @endif
             <form action="{{ route('ticket.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <!-- Judul -->
@@ -76,12 +79,12 @@
                                     </a>
                                 </li>
                                 @foreach ($items as $item)
-                                    <li>
-                                        <a class="dropdown-item" data-value="{{ $item['name'] }}"
-                                            data-type="{{ $item['type'] ?? '' }}">
-                                            {{ $item['name'] }}
-                                        </a>
-                                    </li>
+                                <li>
+                                    <a class="dropdown-item" data-value="{{ $item['name'] }}"
+                                        data-type="{{ $item['type'] ?? '' }}">
+                                        {{ $item['name'] }}
+                                    </a>
+                                </li>
                                 @endforeach
                             </div>
                             <li class="no-data-message" style="display: none;">
@@ -120,11 +123,11 @@
                             <div class="dropdown-options category-dropdown-options"
                                 style="max-height: 200px; overflow-y: auto;">
                                 @foreach ($categories as $cat)
-                                    <li>
-                                        <a class="dropdown-item" data-value="{{ $cat['id'] }}">
-                                            {{ $cat['name'] ?? 'Tanpa Nama' }}
-                                        </a>
-                                    </li>
+                                <li>
+                                    <a class="dropdown-item" data-value="{{ $cat['id'] }}">
+                                        {{ $cat['name'] ?? 'Tanpa Nama' }}
+                                    </a>
+                                </li>
                                 @endforeach
                             </div>
                             <li>
@@ -152,11 +155,11 @@
                             <div class="dropdown-options location-dropdown-options"
                                 style="max-height: 200px; overflow-y: auto;">
                                 @foreach ($locations as $loc)
-                                    <li>
-                                        <a class="dropdown-item" data-value="{{ $loc['id'] }}">
-                                            {!! html_entity_decode($loc['name'] ?? 'Tanpa Nama') !!}
-                                        </a>
-                                    </li>
+                                <li>
+                                    <a class="dropdown-item" data-value="{{ $loc['id'] }}">
+                                        {!! html_entity_decode($loc['name'] ?? 'Tanpa Nama') !!}
+                                    </a>
+                                </li>
                                 @endforeach
                             </div>
                             <li>
@@ -198,7 +201,8 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 // Jika ada device dari controller (url mengandung kode aset)
-                @if (!empty($device))
+                const deviceUrl = document.getElementById('device-url');
+                if (deviceUrl)
                     (async () => {
                         // Tampilkan loading
                         overlay.classList.remove("d-none");
@@ -210,7 +214,6 @@
                         overlay.classList.remove("d-flex");
                         overlay.classList.add("d-none");
                     })();
-                @endif
 
                 // ====== FILTER PENCARIAN DROPDOWN ======
                 document.querySelectorAll('.dropdown-search').forEach(searchInput => {
@@ -293,7 +296,7 @@
                     });
                 });
 
-                // const deviceDropdownBtn = document.getElementById('device_dropdown');
+                // ===== Tool Tip =====
                 const deviceButton = document.getElementById('device_dropdown');
                 const deviceDropdown = document.querySelector('.device-dropdown-options');
                 let deviceTooltip = null;
@@ -303,7 +306,7 @@
                     // deviceDropdown.style.setProperty('--bs-tooltip-max-width', '350px');
                     // deviceDropdown.style.setProperty('white-space', 'normal');
                     deviceTooltip = new bootstrap.Tooltip(deviceDropdown, {
-                        title: 'Jika tidak ada Perangkat Anda di bawah, hubungi ICT',
+                        title: 'Jika tidak ada Perangkat Anda di bawah, silahkan scan QR code perangkat.',
                         trigger: 'manual',
                         customClass: 'tooltip-wide'
                     });
@@ -317,7 +320,7 @@
                         deviceTooltip = null;
                     }
                 });
-
+                // ===== Tool Tip =====
 
                 // ====== PILIH ITEM DROPDOWN ======
                 document.querySelectorAll('.dropdown-menu').forEach(menu => {
