@@ -117,7 +117,6 @@
         }
 
         let tickets = @json($ticket);
-        console.log(tickets);
 
         createChart({
             active: tickets['active'] ?? 0,
