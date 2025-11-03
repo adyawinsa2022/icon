@@ -66,110 +66,110 @@
         </div>
     </div>
     <script src="{{ asset('js/chart.js-4.5.0/chart.js') }}"></script>
-    @if ($ticket['total'] > 0)
-        <script>
-            let ticketChart = null;
+    <script>
+        let ticketChart = null;
 
-            function createChart(dataTicket) {
-                const canvas = document.getElementById('ticketPieChart');
-                if (!canvas) return;
-                const ctx = canvas.getContext('2d');
+        function createChart(dataTicket) {
+            const canvas = document.getElementById('ticketPieChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
 
-                if (ticketChart) {
-                    ticketChart.destroy();
-                }
+            if (ticketChart) {
+                ticketChart.destroy();
+            }
 
-                const data = {
-                    labels: ['Aktif', 'Selesai', 'Tutup'],
-                    datasets: [{
-                        data: [
-                            dataTicket.active ?? 0,
-                            dataTicket.solved ?? 0,
-                            dataTicket.closed ?? 0,
-                        ],
-                        backgroundColor: ['#0D6EFD', '#d8d9d9', '#505051'],
-                        borderWidth: 1
-                    }]
-                };
+            const data = {
+                labels: ['Aktif', 'Selesai', 'Tutup'],
+                datasets: [{
+                    data: [
+                        dataTicket.active ?? 0,
+                        dataTicket.solved ?? 0,
+                        dataTicket.closed ?? 0,
+                    ],
+                    backgroundColor: ['#0D6EFD', '#d8d9d9', '#505051'],
+                    borderWidth: 1
+                }]
+            };
 
-                ticketChart = new Chart(ctx, {
-                    type: 'doughnut', // <-- pakai doughnut agar tengahnya bolong
-                    data: data,
-                    options: {
-                        cutout: '50%', // persentase bolongan tengah (default 50%)
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                display: false,
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        let value = context.raw;
-                                        let total = context.dataset.data.reduce((a, b) => a + b,
-                                            0);
-                                        return `${context.label}: ${value}`;
-                                    }
+            ticketChart = new Chart(ctx, {
+                type: 'doughnut', // <-- pakai doughnut agar tengahnya bolong
+                data: data,
+                options: {
+                    cutout: '50%', // persentase bolongan tengah (default 50%)
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let value = context.raw;
+                                    let total = context.dataset.data.reduce((a, b) => a + b,
+                                        0);
+                                    return `${context.label}: ${value}`;
                                 }
                             }
                         }
                     }
-                });
-            }
+                }
+            });
+        }
 
-            let tickets = @json($ticket);
-            createChart({
-                active: tickets['active'] ?? 0,
-                solved: tickets['solved'] ?? 0,
-                closed: tickets['closed'] ?? 0,
+        let tickets = @json($ticket);
+        console.log(tickets);
+
+        createChart({
+            active: tickets['active'] ?? 0,
+            solved: tickets['solved'] ?? 0,
+            closed: tickets['closed'] ?? 0,
+        });
+
+        document.addEventListener('livewire:initialized', function() {
+            Livewire.on('ticketUpdated', data => {
+                tickets = data.ticket;
             });
 
-            document.addEventListener('livewire:initialized', function() {
-                Livewire.on('ticketUpdated', data => {
-                    tickets = data.ticket;
-                });
-
-                Livewire.on('rangeChanged', range => {
-                    const input = document.getElementById('rangeValue');
-                    if (input) {
-                        const inputType = range.value === 'day' ? 'date' : range.value;
-                        input.type = inputType;
-                    }
-                });
-
-                Livewire.hook('morphed', () => {
-                    createChart({
-                        active: tickets['active'] ?? 0,
-                        solved: tickets['solved'] ?? 0,
-                        closed: tickets['closed'] ?? 0,
-                    });
-                    generateNumberTickets();
-                });
+            Livewire.on('rangeChanged', range => {
+                const input = document.getElementById('rangeValue');
+                if (input) {
+                    const inputType = range.value === 'day' ? 'date' : range.value;
+                    input.type = inputType;
+                }
             });
 
-            function generateNumberTickets() {
-                const counters = document.querySelectorAll('.counter');
-                const duration = 1000; // 1 detik animasi
-
-                counters.forEach(counter => {
-                    const target = parseInt(counter.dataset.target, 10);
-                    const startTime = performance.now();
-
-                    function update(currentTime) {
-                        const progress = Math.min((currentTime - startTime) / duration, 1);
-                        const current = Math.floor(progress * target);
-
-                        counter.textContent = current.toLocaleString(); // format ribuan
-
-                        if (progress < 1) {
-                            requestAnimationFrame(update);
-                        }
-                    }
-
-                    requestAnimationFrame(update);
+            Livewire.hook('morphed', () => {
+                createChart({
+                    active: tickets['active'] ?? 0,
+                    solved: tickets['solved'] ?? 0,
+                    closed: tickets['closed'] ?? 0,
                 });
-            }
-            generateNumberTickets();
-        </script>
-    @endif
+                generateNumberTickets();
+            });
+        });
+
+        function generateNumberTickets() {
+            const counters = document.querySelectorAll('.counter');
+            const duration = 1000; // 1 detik animasi
+
+            counters.forEach(counter => {
+                const target = parseInt(counter.dataset.target, 10);
+                const startTime = performance.now();
+
+                function update(currentTime) {
+                    const progress = Math.min((currentTime - startTime) / duration, 1);
+                    const current = Math.floor(progress * target);
+
+                    counter.textContent = current.toLocaleString(); // format ribuan
+
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    }
+                }
+
+                requestAnimationFrame(update);
+            });
+        }
+        generateNumberTickets();
+    </script>
 </div>
