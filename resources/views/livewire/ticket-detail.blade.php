@@ -2,7 +2,7 @@
     <h5 class="fw-bold mb-2">Detail Tiket</h5>
     <div class="card mb-3 shadow-sm">
         <div class="card-body">
-            <h5 class="card-title">{{ $ticket['name'] ?? 'Tanpa Judul' }}</h5>
+            <h5 class="card-title">{!! html_entity_decode($ticket['name']) !!}</h5>
             <table class="table table-borderless">
                 <tbody>
                     <tr>
@@ -47,7 +47,6 @@
                 </tbody>
             </table>
 
-
             <p class="mt-3">{!! html_entity_decode($ticket['content'] ?? '-') !!}</p>
 
             @if ($userProfile != 'User' && !in_array($userName, $assignedTechs) && $ticket['status'] < 5)
@@ -59,4 +58,37 @@
             @endif
         </div>
     </div>
+
+    @if ($userProfile == 'Technician' || $userProfile == 'Super-Admin')
+        <h5 class="fw-bold mb-2">Performa Tiket</h5>
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tbody>
+                        @php
+                            $response = $ticket['takeintoaccountdate']
+                                ? $ticket['takeintoaccountdate'] . ' (' . $ticket['takeintoaccount_time'] . ')'
+                                : null;
+                        @endphp
+                        <tr>
+                            <td class="fw-semibold">Diambil</td>
+                            <td>{{ $response ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Selesai</td>
+                            <td>{{ $ticket['solvedate'] ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Durasi Pengerjaan</td>
+                            <td>{{ $ticket['solve_time'] ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Ditutup</td>
+                            <td>{{ $ticket['closedate'] ?? '-' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
 </div>
