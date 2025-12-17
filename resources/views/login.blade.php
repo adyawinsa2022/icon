@@ -22,17 +22,15 @@
                         autofocus>
                 </div>
                 <div class="mb-3">
-                    <div class="input-group">
-                        <input type="password" name="password" class="form-control" id="password"
+                    <div class="position-relative">
+                        <input type="password" id="password" name="password" class="form-control"
                             placeholder="Password">
-                        <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()">
+                        <span class="position-absolute top-50 end-0 translate-middle-y me-3" role="button"
+                            onclick="togglePassword()">
                             <i class="bi bi-eye" id="toggleIcon"></i>
-                        </button>
+                        </span>
                     </div>
                 </div>
-                {{-- <div class="mb-3">
-                    <a>Lupa Password?</a>
-                </div> --}}
                 <button type="submit" class="btn btn-primary w-100">Login</button>
             </form>
         </div>
