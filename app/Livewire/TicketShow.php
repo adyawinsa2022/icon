@@ -2,8 +2,9 @@
 
 namespace App\Livewire;
 
-use Carbon\CarbonInterval;
+use Carbon\Carbon;
 use Livewire\Component;
+use Carbon\CarbonInterval;
 use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -71,9 +72,15 @@ class TicketShow extends Component
         $ticket['takeintoaccount_delay_stat'] ?
             $ticket['takeintoaccount_time'] = CarbonInterval::second($ticket['takeintoaccount_delay_stat'])->cascade()->forHumans() :
             $ticket['takeintoaccount_time'] = null;
-        $ticket['solve_delay_stat'] ?
-            $ticket['solve_time'] = CarbonInterval::second($ticket['solve_delay_stat'])->cascade()->forHumans() :
-            $ticket['solve_time'] = null;
+
+        $solveTime = null;
+        if ($ticket['takeintoaccountdate'] && $ticket['solvedate']) {
+            $solveTime = Carbon::parse($ticket['takeintoaccountdate'])
+                ->diffAsCarbonInterval(Carbon::parse($ticket['solvedate']))
+                ->cascade()
+                ->forHumans();
+        }
+        $ticket['solve_time'] = $solveTime;
 
         // === Ambil teknisi yang ditugaskan ===
         $ticketUsers = Http::withHeaders([
