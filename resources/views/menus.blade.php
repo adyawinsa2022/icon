@@ -27,6 +27,16 @@
                     </div>
                 </a>
             </div>
+            @if ($userProfile == 'Technician' || $userProfile == 'Super-Admin')
+                <div class="col-4">
+                    <a href="{{ route('container.index') }}" class="card shadow-sm h-100 text-decoration-none">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                            <i class="bi bi-box fs-1"></i>
+                            <span class="fw-semibold">Kontainer</span>
+                        </div>
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
 </x-layout>

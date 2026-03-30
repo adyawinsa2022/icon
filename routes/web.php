@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\AssetsController;
+use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CopierController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ProfileController;
@@ -28,6 +29,13 @@ Route::middleware(['glpi.session'])->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
 
+    // Container
+    Route::get('/container', [ContainerController::class, 'index'])->name('container.index');
+    Route::get('/container/create', [ContainerController::class, 'create'])->name('container.create');
+    Route::get('/container/search', [ContainerController::class, 'search'])->name('container.search');
+    Route::get('/container/{code}/edit', [ContainerController::class, 'edit'])->name('container.edit');
+    Route::post('/container', [ContainerController::class, 'storeOrUpdate'])->name('container.store');
+
     // Menu
     Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
 
@@ -50,3 +58,6 @@ Route::middleware(['glpi.session'])->group(function () {
     Route::get('/ticket/history/{deviceName}', [TicketController::class, 'history'])->name('ticket.device');
     Route::get('/ticket', [TicketController::class, 'index'])->name('ticket.index');
 });
+
+// Container
+Route::get('/container/{code}', [ContainerController::class, 'show'])->name('container.show');
