@@ -47,7 +47,7 @@
                 </tbody>
             </table>
 
-            <p class="mt-3">{!! nl2br(e($ticket['content'] ?? '-')) !!}</p>
+            <p class="mt-3 px-2">{!! nl2br(e($ticket['content'] ?? '-')) !!}</p>
 
             @if ($userProfile != 'User' && !in_array($userName, $assignedTechs) && $ticket['status'] < 5)
                 <div class="d-flex justify-content-center">
