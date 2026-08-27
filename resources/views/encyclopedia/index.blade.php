@@ -1,4 +1,4 @@
-<x-layout :show-bottom-navbar="false">
+<x-layout>
     <div class="container pt-3 flex-grow-1 d-flex flex-column">
         @livewire('encyclopedia-list')
     </div>
