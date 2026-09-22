@@ -1,0 +1,38 @@
+services:
+
+  app:
+    image: icon-app:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    container_name: icon-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - icon
+      - database
+
+  nginx:
+    image: icon-nginx:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: nginx
+    container_name: icon-nginx
+    restart: unless-stopped
+    depends_on:
+      - app
+    networks:
+      - icon
+      - proxy
+
+networks:
+  icon:
+    name: icon
+    driver: bridge
+  proxy:
+    external: true
+  database:
+    external: true
