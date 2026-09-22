@@ -50,9 +50,6 @@ COPY --from=composer /app/vendor ./vendor
 # Laravel application
 COPY . .
 
-# Frontend build
-COPY --from=frontend /app/public/build ./public/build
-
 # Laravel writable directories
 RUN mkdir -p \
         storage/framework/cache \
