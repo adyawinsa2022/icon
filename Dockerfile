@@ -1,21 +1,5 @@
 # ============================================================
-# 1. Frontend dependencies & build
-# ============================================================
-FROM node:22-alpine AS frontend
-
-WORKDIR /app
-
-COPY package.json package-lock.json ./
-
-RUN npm ci
-
-COPY . .
-
-RUN npm run production
-
-
-# ============================================================
-# 2. Composer dependencies
+# 1. Composer dependencies
 # ============================================================
 FROM php:8.3-cli-alpine AS composer
 
@@ -35,7 +19,7 @@ RUN composer install \
 
 
 # ============================================================
-# 3. Laravel PHP-FPM
+# 2. Laravel PHP-FPM
 # ============================================================
 FROM php:8.3-fpm-alpine AS app
 
@@ -86,7 +70,7 @@ CMD ["php-fpm"]
 
 
 # ============================================================
-# 4. Laravel Nginx
+# 3. Laravel Nginx
 # ============================================================
 FROM nginx:alpine AS nginx
 
