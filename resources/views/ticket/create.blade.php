@@ -156,7 +156,9 @@
                                 style="max-height: 200px; overflow-y: auto;">
                                 @foreach ($locations as $loc)
                                 <li>
-                                    <a class="dropdown-item" data-value="{{ $loc['id'] }}">
+                                    <a class="dropdown-item"
+                                        data-value="{{ $loc['id'] }}"
+                                        title="{{ $loc['completename'] ?? '' }}">
                                         {!! html_entity_decode($loc['name'] ?? 'Tanpa Nama') !!}
                                     </a>
                                 </li>
@@ -242,7 +244,7 @@
                                     visibleCount++;
                                 }
                             } else {
-                                // Jika <li> tidak punya .dropdown-item (misalnya divider atau li tanpa link), 
+                                // Jika <li> tidak punya .dropdown-item (misalnya divider atau li tanpa link),
                                 // kita biarkan dia terlihat (atau sembunyikan sesuai kebutuhan desain lain)
                             }
                         });

@@ -93,7 +93,8 @@ class TicketController extends Controller
         ]);
 
         $locations = $locationsResponse->successful() ? $locationsResponse->json() : [];
-        // }
+
+        usort($locations, fn ($a, $b) => (int) $a['level'] <=> (int) $b['level']);
 
         return view(
             'ticket.create',
