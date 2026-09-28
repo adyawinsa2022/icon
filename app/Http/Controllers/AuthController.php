@@ -89,6 +89,13 @@ class AuthController extends Controller
             Session::put('glpi_email_adyawinsa', true);
         }
 
+        $firstname = $userData['session']['glpifirstname'];
+        $realname = $userData['session']['glpirealname'];
+
+        if (blank($firstname) && blank($realname)) {
+            return redirect()->route('profile.name')->with('success', 'Nama anda belum terdaftar, silahkan isi Nama anda.');
+        }
+
         // 4️⃣ Redirect jika ada
         if (in_array($request->password, ['API2025', 'API@2025'])) {
             return redirect()->route('profile.reset_password')->with('success', 'Mohon ganti password Anda.');

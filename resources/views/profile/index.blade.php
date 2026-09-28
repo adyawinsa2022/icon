@@ -42,6 +42,10 @@
                     <i class="bi bi-chevron-right"></i>
                 </a>
             @endif
+            <a class="menu-item text-decoration-none text-reset" href="{{ route('profile.name') }}">
+                <span><i class="bi bi-person-vcard me-2"></i> Ubah Nama</span>
+                <i class="bi bi-chevron-right"></i>
+            </a>
             <a class="menu-item text-decoration-none text-reset" href="{{ route('logout') }}">
                 <span><i class="bi bi-box-arrow-right me-2"></i> Logout</span>
                 <i class="bi bi-chevron-right"></i>

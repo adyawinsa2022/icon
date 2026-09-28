@@ -40,6 +40,8 @@ Route::middleware(['glpi.session'])->group(function () {
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('/profile/name', [ProfileController::class, 'showName'])->name('profile.name');
+    Route::post('/profile/name', [ProfileController::class, 'updateName'])->name('profile.name.process');
     Route::get('/profile/reset-password', [ProfileController::class, 'showResetPassword'])->name('profile.reset_password');
     Route::post('/profile/reset-password', [ProfileController::class, 'resetPassword'])->name('profile.reset_password.process');
 
