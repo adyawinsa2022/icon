@@ -1,15 +1,28 @@
 <div>
+    <style>
+        .activity-bubble {
+            width: 90%; /* Default untuk HP/Mobile */
+        }
+
+        @media (min-width: 768px) {
+            .activity-bubble {
+                width: 50% !important; /* Berubah jadi 50% saat di Laptop/Desktop */
+            }
+        }
+    </style>
     <h5 class="fw-bold mb-2">Riwayat Aktivitas</h5>
     @forelse($activities as $act)
         @php
             $isAssignedTech = in_array($act['author_name'], $assignedTechs ?? []);
-            $cardRadius = $isAssignedTech ? '38px 38px 0 38px' : '38px 38px 38px 0px';
+            $alignmentClass = $isAssignedTech ? 'ms-auto bg-light-primary' : 'me-auto bg-white';
+            $cardRadius = $isAssignedTech ? '24px 24px 0px 24px' : '24px 24px 24px 0px';
         @endphp
-        <div class="card mb-2 shadow-sm" style="border-radius: {{ $cardRadius }};">
+
+        <div class="card mb-2 shadow-sm {{ $alignmentClass }} activity-bubble" style="border-radius: {{ $cardRadius }};">
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span
-                        class="badge 
+                        class="badge
                             @if ($act['type'] == 'followup') bg-primary
                             @elseif($act['type'] == 'solution') bg-success
                             @elseif($act['type'] == 'task') bg-warning text-dark
@@ -19,7 +32,9 @@
                     </span>
                     <small class="text-muted">{{ $act['date'] }}</small>
                 </div>
-                <p class="mb-1 small fw-semibold">{{ $act['author_name'] ?? '-' }}</p>
+                <p class="mb-1 small fw-semibold text-primary">
+                    <i class="bi bi-person-fill"></i> {{ $act['author_name'] ?? '-' }}
+                </p>
                 <div class="small">{!! html_entity_decode($act['content'] ?? '<i>[Kosong]</i>') !!}</div>
 
                 @if ($act['type'] == 'task' && $act['begin'])
