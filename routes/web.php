@@ -23,6 +23,9 @@ Route::get('/assets-info/{deviceName}', [AssetsController::class, 'info'])->name
 // Documents
 Route::get('/document/{id}', [DocumentController::class, 'show'])->name('document.show');
 
+// Encyclopedia public
+Route::get('/encyclopedia/{id}', [EncyclopediaController::class, 'show'])->name('encyclopedia.article');
+
 // Middleware Group (harus ada GLPI session)
 Route::middleware(['glpi.session'])->group(function () {
     // Dashboard
@@ -36,7 +39,6 @@ Route::middleware(['glpi.session'])->group(function () {
 
     // Encyclopedia
     Route::get('/encyclopedia', [EncyclopediaController::class, 'index'])->name('encyclopedia.index');
-    Route::get('/encyclopedia/{id}', [EncyclopediaController::class, 'show'])->name('encyclopedia.article');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
