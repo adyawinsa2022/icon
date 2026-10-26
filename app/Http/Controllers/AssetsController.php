@@ -72,6 +72,8 @@ class AssetsController extends Controller
 
         // Model: manufaktur
         $manufacturer = $this->apiHelper->getResource('Manufacturer', $device['manufacturers_id'] ?? null, $sessionToken);
+        $deviceTypeModel = ucfirst($deviceType).'Model';
+        $model = $this->apiHelper->getResource($deviceTypeModel, $device[strtolower($deviceTypeModel).'s_id'] ?? null, $sessionToken);
         // Output: $manufacturer['name'], $model['name']
 
         // User
@@ -92,7 +94,7 @@ class AssetsController extends Controller
         }
 
         $device['manufacturer'] = data_get($manufacturer, 'name', '-');
-        $device['model'] = '-';
+        $device['model'] = $model['name'] ?? '-';
         $device['user'] = $user ?? '-';
         $device['location'] = $location['name'] ?? '-';
         return view('device.general', compact('device', 'id'));
