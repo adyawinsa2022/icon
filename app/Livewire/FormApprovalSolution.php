@@ -47,22 +47,7 @@ class FormApprovalSolution extends Component
                 $contentPayload = $this->content ?: 'Tiket gagal ditutup atas penolakan User';
             }
 
-            // === 2. Tambah Followup ===
-            $payloadFollowup = [
-                'input' => [
-                    'items_id' => $this->ticketId,
-                    'itemtype' => 'Ticket',
-                    'content'  => $contentPayload,
-                    'users_id' => $userId,
-                ]
-            ];
-
-            $resFollowup = Http::withHeaders([
-                'App-Token' => config('glpi.api_app_token'),
-                'Session-Token' => $sessionToken,
-            ])->post(config('glpi.api_url') . '/ITILFollowup', $payloadFollowup);
-
-            // === 3. Update solusi jika ada ===
+            // === 2. Update status solusi ===
             if ($this->solutionId) {
                 $solutionStatus = $this->answer === 'approve' ? 3 : 4; // 3=approved, 4=refused
 
@@ -80,7 +65,7 @@ class FormApprovalSolution extends Component
                 ])->put(config('glpi.api_url') . "/ITILSolution/{$this->solutionId}", $payloadSolution);
             }
 
-            // === 4. Update status tiket ===
+            // === 3. Update status tiket ===
             $payloadStatus = [
                 'input' => [
                     'status' => $status,
@@ -100,7 +85,26 @@ class FormApprovalSolution extends Component
                 );
             }
 
-            if ($resStatus->successful() && $resFollowup->successful() && (!isset($resSolution) || $resSolution->successful())) {
+            // === 4. Tambah Followup ===
+            $payloadFollowup = [
+                'input' => [
+                    'items_id' => $this->ticketId,
+                    'itemtype' => 'Ticket',
+                    'content'  => $contentPayload,
+                    'users_id' => $userId,
+                ]
+            ];
+
+            $resFollowup = Http::withHeaders([
+                'App-Token' => config('glpi.api_app_token'),
+                'Session-Token' => $sessionToken,
+            ])->post(config('glpi.api_url') . '/ITILFollowup', $payloadFollowup);
+
+            $isSolutionOk = (!isset($resSolution) || $resSolution->successful());
+            $resStatus = $resStatus->successful();
+            $resFollowup = $resFollowup->successful();
+
+            if ($isSolutionOk && $resStatus && $resFollowup) {
                 $this->content = '';
                 $this->answer = 'approve';
                 $this->dispatch('update-ticket');
