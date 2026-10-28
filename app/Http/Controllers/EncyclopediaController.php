@@ -28,6 +28,7 @@ class EncyclopediaController extends Controller
     public function show($id)
     {
         $sessionToken = Session::get('glpi_session_token');
+        $tempSession = null;
 
         // Jika belum login, initSession pakai akun API khusus
         if (!$sessionToken) {
